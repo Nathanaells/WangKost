@@ -7,8 +7,9 @@ export interface IHostel {
     address: string;
     description: string;
     maxRooms: number;
-    AdminId: ObjectId;
-    
+    adminId: ObjectId;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 export default class Hostel {
@@ -18,7 +19,7 @@ export default class Hostel {
         return collection;
     }
 
-    static async getRooms(): Promise<WithId<IHostel>[]> {
+    static async getHostels(): Promise<WithId<IHostel>[]> {
         const collection = this.getCollection();
         const hostels = await collection.find().toArray();
         return hostels;

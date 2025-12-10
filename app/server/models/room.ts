@@ -4,8 +4,10 @@ import { getDb } from "../mongodb/config";
 export interface IRoom {
     _id?: ObjectId;
     fixedCost: number;
-    HostelId: ObjectId;
+    hostelId: ObjectId;
     isAvailable: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 export default class Room {

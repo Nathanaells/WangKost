@@ -7,7 +7,8 @@ export interface IAdmin {
     email: string;
     password: string;
     phoneNumber: string;
-    
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 export default class Admin {
@@ -17,7 +18,7 @@ export default class Admin {
         return collection;
     }
 
-    static async getRooms(): Promise<WithId<IAdmin>[]> {
+    static async getAdmins(): Promise<WithId<IAdmin>[]> {
         const collection = this.getCollection();
         const admins = await collection.find().toArray();
         return admins;

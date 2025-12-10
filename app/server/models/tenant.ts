@@ -7,7 +7,9 @@ export interface ITenant {
     email: string;
     birthday: Date;
     phoneNumber: string;
-    status: string;
+    status: 'active' | 'inactive' | 'pending';
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 export default class Tenant {
@@ -17,7 +19,7 @@ export default class Tenant {
         return collection;
     }
 
-    static async getRooms(): Promise<WithId<ITenant>[]> {
+    static async getTenants(): Promise<WithId<ITenant>[]> {
         const collection = this.getCollection();
         const tenants = await collection.find().toArray();
         return tenants;

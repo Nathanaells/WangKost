@@ -4,14 +4,16 @@ import { getDb } from "../mongodb/config";
 export interface ITransaction {
     _id?: ObjectId;
     fixedCost: number;
-    TenantId: ObjectId;
+    tenantId: ObjectId;
     amount: number;
-    status: string;
+    status: "paid" | "unpaid" | "pending";
     dueDate: Date;
-    paidAt: Date;
-    midTransTransactionId: string;
-    midTransOrderId: string;
-    RentId: ObjectId
+    paidAt?: Date;
+    midTransTransactionId?: string;
+    midTransOrderId?: string;
+    rentId: ObjectId;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 export default class Transaction {
@@ -21,9 +23,9 @@ export default class Transaction {
         return collection;
     }
 
-    static async getRooms(): Promise<WithId<ITransaction>[]> {
+    static async getTransactions(): Promise<WithId<ITransaction>[]> {
         const collection = this.getCollection();
-        const rooms = await collection.find().toArray();
-        return rooms;
+        const transactions = await collection.find().toArray();
+        return transactions;
     }
 }

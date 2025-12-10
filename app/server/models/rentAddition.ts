@@ -3,8 +3,10 @@ import { getDb } from "../mongodb/config";
 
 export interface IRentAddition {
     _id?: ObjectId;
-    RentId: ObjectId;
-    AdditionalId: ObjectId;
+    rentId: ObjectId;
+    additionalId: ObjectId;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 export default class RentAddition {
@@ -14,9 +16,9 @@ export default class RentAddition {
         return collection;
     }
 
-    static async getRooms(): Promise<WithId<IRentAddition>[]> {
+    static async getRentAdditions(): Promise<WithId<IRentAddition>[]> {
         const collection = this.getCollection();
-        const rooms = await collection.find().toArray();
-        return rooms;
+        const rentAdditions = await collection.find().toArray();
+        return rentAdditions;
     }
 }

@@ -5,6 +5,9 @@ export interface IAdditional {
     _id?: ObjectId;
     name: string;
     price: number;
+    description?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 export default class Additional {
@@ -14,9 +17,9 @@ export default class Additional {
         return collection;
     }
 
-    static async getRooms(): Promise<WithId<IAdditional>[]> {
+    static async getAdditionals(): Promise<WithId<IAdditional>[]> {
         const collection = this.getCollection();
-        const rooms = await collection.find().toArray();
-        return rooms;
+        const additionals = await collection.find().toArray();
+        return additionals;
     }
 }
