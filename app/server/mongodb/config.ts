@@ -1,3 +1,6 @@
+//! WARNING
+// Not using mongoeloquent! Please change immediately!
+
 import { MongoClient, Db } from 'mongodb';
 import dotenv from 'dotenv';
 
