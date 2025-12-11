@@ -4,10 +4,7 @@ export default function feendues() {
             <div className="max-w-7xl mx-auto pt-6">
                 {/* Header */}
                 <div className="flex justify-between items-start mb-8">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Fee and Due</h1>
-                        <p className="text-gray-500 mt-1">Manage fee and dues </p>
-                    </div>
+                    {/* Main Content Disini */}
                 </div>
             </div>
         </div>
