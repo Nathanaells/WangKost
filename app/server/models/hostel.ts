@@ -1,4 +1,8 @@
-import { Model, IMongoloquentSchema, IMongoloquentTimestamps } from "mongoloquent";
+import {
+  Model,
+  IMongoloquentSchema,
+  IMongoloquentTimestamps,
+} from "mongoloquent";
 
 interface IHostel extends IMongoloquentSchema, IMongoloquentTimestamps {
   name: string;
@@ -8,15 +12,14 @@ interface IHostel extends IMongoloquentSchema, IMongoloquentTimestamps {
   adminId: string;
 }
 
-class Hostel extends Model<IHostel> {
+export class Hostel extends Model<IHostel> {
   /**
    * The attributes of the model.
    *
    * @var IHostel
    */
-  public static $schema: IHostel
+  public static $schema: IHostel;
 
   // ...
   protected $collection: string = "hostels";
 }
-
