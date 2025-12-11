@@ -3,6 +3,8 @@ import {
   IMongoloquentSchema,
   IMongoloquentTimestamps,
 } from "mongoloquent";
+import Room from "./Room";
+import Owner from "./Owner";
 
 interface IHostel extends IMongoloquentSchema, IMongoloquentTimestamps {
   name: string;
@@ -10,16 +12,17 @@ interface IHostel extends IMongoloquentSchema, IMongoloquentTimestamps {
   maxRoom?: number;
   description?: string;
   adminId: string;
+  rooms: Room[];
 }
 
 export class Hostel extends Model<IHostel> {
-  /**
-   * The attributes of the model.
-   *
-   * @var IHostel
-   */
+  protected $collection: string = "hostels";
   public static $schema: IHostel;
 
-  // ...
-  protected $collection: string = "hostels";
+  public admin() {
+    return this.belongsTo(Owner);
+  }
+  public room() {
+    return this.hasMany(Room);
+  }
 }
