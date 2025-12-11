@@ -1,3 +1,4 @@
+
 import { Model, IMongoloquentSchema, IMongoloquentTimestamps } from "mongoloquent";
 import Room from "./room";
 import Owner from "./Owner";
@@ -11,8 +12,8 @@ interface IHostel extends IMongoloquentSchema, IMongoloquentTimestamps {
   rooms: Room[];
 }
 
-export default class Hostel extends Model<IHostel> {
-  public static $schema: IHostel
+export class Hostel extends Model<IHostel> {
+  public static $schema: IHostel;
   protected $collection: string = "hostels";
 
   public admin() {
@@ -22,4 +23,3 @@ export default class Hostel extends Model<IHostel> {
     return this.hasMany(Room)
   }
 }
-
