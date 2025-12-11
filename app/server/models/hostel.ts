@@ -16,8 +16,8 @@ interface IHostel extends IMongoloquentSchema, IMongoloquentTimestamps {
 }
 
 export class Hostel extends Model<IHostel> {
-  protected $collection: string = "hostels";
   public static $schema: IHostel;
+  protected $collection: string = "hostels";
 
   public admin() {
     return this.belongsTo(Owner);
