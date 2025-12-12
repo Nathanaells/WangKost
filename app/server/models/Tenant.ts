@@ -25,7 +25,7 @@ export const tenantCreateSchema = z.object({
     const phone = parsePhoneNumberFromString(value, "ID");
     return phone?.isValid();
   }, "Invalid phone number"),
-})
+});
 
 export default class Tenant extends Model<ITenant> {
   public static $schema: ITenant;
