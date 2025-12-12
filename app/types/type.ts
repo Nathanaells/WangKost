@@ -1,42 +1,9 @@
 import { ObjectId } from "mongodb";
 
-export interface IProduct {
-  _id: ObjectId;
-  name: string;
-  slug: string;
-  description: string;
-  excerpt: string;
-  price: number;
-  tags: string[];
-  thumbnail: string;
-  images: string[];
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface Product {
-  _id?: ObjectId | string;
-  slug: string;
-  name: string;
-  price: number;
-  thumbnail: string;
-  excerpt: string;
-  tags: string[];
-}
-
-export interface IProducts {
-  products: IProduct[];
-  total: number;
-  
-  totalPages: number;
-}
-
-export interface IUser {
-  name: string;
-  username: string;
-  email: string;
-  password: string;
-  phoneNumber: string;
+export enum TransactionStatus {
+  paid = "PAID",
+  unpaid = "UNPAID",
+  pending = "PENDING",
 }
 
 export interface IJWTPayload {
@@ -45,12 +12,19 @@ export interface IJWTPayload {
   email: string;
 }
 
-export interface IHostel extends IMongoloquentSchema, IMongoloquentTimestamps {
+export interface IHostel {
   name: string;
   address: string;
   maxRoom?: number;
   description?: string;
   ownerId: ObjectId;
+}
+
+export interface IOwner {
+  name: string;
+  email: string;
+  password: string;
+  phoneNumber: string;
 }
 
 export interface IRoom {
