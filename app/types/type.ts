@@ -1,22 +1,74 @@
 import { ObjectId } from "mongodb";
-import {
-  Model,
-  IMongoloquentSchema,
-  IMongoloquentTimestamps,
-} from "mongoloquent";
 
-export enum TransactionStatus {
-  Unpaid = "UNPAID",
-  Paid = "PAID",
-  Pendng = "PENDING",
+export interface IProduct {
+  _id: ObjectId;
+  name: string;
+  slug: string;
+  description: string;
+  excerpt: string;
+  price: number;
+  tags: string[];
+  thumbnail: string;
+  images: string[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface IOwner {
+export interface Product {
+  _id?: ObjectId | string;
+  slug: string;
   name: string;
+  price: number;
+  thumbnail: string;
+  excerpt: string;
+  tags: string[];
+}
+
+export interface IProducts {
+  products: IProduct[];
+  total: number;
+  
+  totalPages: number;
+}
+
+export interface IUser {
+  name: string;
+  username: string;
   email: string;
   password: string;
-  phoneNumber: string;
-  hostels: IHostel[];
+}
+
+export interface IWishlist {
+  userId: ObjectId;
+  productId: ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface WishlistItem {
+  _id: string;
+  userId: string;
+  productId: string;
+  createdAt: string;
+  updatedAt: string;
+  wishlist: {
+    _id: string;
+    slug: string;
+    name: string;
+    price: number;
+    thumbnail: string;
+    excerpt: string;
+    description: string;
+    tags: string[];
+    images: string[];
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
+export interface IloginPayload {
+  username: string;
+  password: string;
 }
 
 export interface IJWTPayload {
@@ -25,39 +77,6 @@ export interface IJWTPayload {
   email: string;
 }
 
-export interface IHostel extends IMongoloquentSchema, IMongoloquentTimestamps {
-  name: string;
-  address: string;
-  maxRoom?: number;
-  description?: string;
-  ownerId: ObjectId;
-  rooms: IRoom[];
-}
-
-export interface IRoom {
-  fixedCost: number;
-  isAvailable: boolean;
-  hostelId: ObjectId;
-  tenants: ITenant[];
-}
-
-export interface ITenant {
-  name: string;
-  email: string;
-  birthday: Date;
-  phoneNumber: string;
-  isActive: boolean;
-  rents: IRent[];
-}
-
-export interface IRent {
-  price: number;
-  roomId: ObjectId;
-  tenantId: ObjectId;
-  additionals: IAdditional[];
-}
-
-export interface IAdditional {
-  name: string;
-  price: number;
+export interface IOptions {
+  params: Promise<{ slug: string }>;
 }

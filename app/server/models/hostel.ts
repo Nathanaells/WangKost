@@ -13,7 +13,6 @@ interface IHostel extends IMongoloquentSchema, IMongoloquentTimestamps {
   maxRoom?: number;
   description?: string;
   ownerId: ObjectId;
-  rooms: Room[];
 }
 
 export default class Hostel extends Model<IHostel> {
