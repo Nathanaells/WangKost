@@ -11,14 +11,23 @@ export default function Sidebar() {
             name: 'Dashboard',
             href: '/',
             icon: (
-                <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
-                    <path d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z" />
-                    <path d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z" />
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-5 h-5">
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"
+                    />
                 </svg>
             ),
         },
         {
-            name: 'Hostel Managements',
+            name: 'Hostel Management',
             href: '/hostel',
             icon: (
                 <svg
@@ -27,11 +36,11 @@ export default function Sidebar() {
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
                     stroke="currentColor"
-                    className="w-6 h-6">
+                    className="w-5 h-5">
                     <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205 3 1m1.5.5-1.5-.5M6.75 7.364V3h-3v18m3-13.636 10.5-3.819"
+                        d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"
                     />
                 </svg>
             ),
@@ -46,97 +55,81 @@ export default function Sidebar() {
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
                     stroke="currentColor"
-                    className="size-6">
+                    className="w-5 h-5">
                     <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z"
+                        d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z"
                     />
                 </svg>
             ),
-        },
+        }
     ];
+
+    const getPageTitle = () => {
+        const current = menu.find((item) => item.href === pathname);
+        return current ? current.name : 'Dashboard';
+    };
+
     return (
         <>
-            <nav className="fixed top-0 z-50 w-full bg-[#5353ec] border-b border-gray-700 text-white h-16">
-                <div className="px-3 py-3 lg:px-5 lg:pl-3 h-full flex items-center justify-between">
-                    <div className="flex items-center justify-start">
-                        <button
-                            data-drawer-target="logo-sidebar"
-                            data-drawer-toggle="logo-sidebar"
-                            aria-controls="logo-sidebar"
-                            type="button"
-                            className="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
-                            <span className="sr-only">Open sidebar</span>
-                            <svg
-                                className="w-6 h-6"
-                                aria-hidden="true"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    clipRule="evenodd"
-                                    fillRule="evenodd"
-                                    d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
-                            </svg>
-                        </button>
-                        <a href="#" className="flex ms-2 md:me-24 items-center gap-2">
-                            <svg
-                                className="w-8 h-8 text-white"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                            <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap">WANGKOST</span>
-                        </a>
-                    </div>
+            {/* Top Navbar */}
+            <nav className="fixed top-0 right-0 left-0 sm:left-64 h-20 bg-white z-30 flex items-center justify-between px-8 shadow-sm">
+                <div className="flex items-center gap-4">
+                    <h1 className="text-2xl font-bold text-gray-800">{getPageTitle()}</h1>
                 </div>
             </nav>
 
+            {/* Sidebar */}
             <aside
                 id="logo-sidebar"
-                className="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0"
+                className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 bg-[#5353ec]"
                 aria-label="Sidebar">
-                <div className="h-full px-3 pb-4 overflow-y-auto bg-white flex flex-col justify-between">
-                    <ul className="space-y-2 font-medium">
-                        {menu.map((item) => {
-                            const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+                <div className="h-full flex flex-col">
+                    {/* Logo */}
+                    <div className="h-20 flex items-center px-8">
+                        <span className="self-center text-3xl font-bold text-white whitespace-nowrap">WANGKOST</span>
+                    </div>
 
-                            return (
-                                <li key={item.href}>
-                                    <Link
-                                        href={item.href}
-                                        className={`flex items-center p-2 rounded-lg group hover:bg-gray-100 border-l-4
-                ${isActive ? 'text-[#5353ec] border-[#5353ec]' : 'text-gray-600 border-transparent'}
-              `}>
-                                        <div className={isActive ? 'text-[#5353ec]' : 'text-gray-500'}>{item.icon}</div>
+                    {/* Menu */}
+                    <div className="flex-1 px-4 py-4 overflow-y-auto">
+                        <ul className="space-y-2 font-medium">
+                            {menu.map((item) => {
+                                const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
 
-                                        <span className="ms-3">{item.name}</span>
-                                    </Link>
-                                </li>
-                            );
-                        })}
-                    </ul>
+                                return (
+                                    <li key={item.href}>
+                                        <Link
+                                            href={item.href}
+                                            className={`flex items-center p-3 rounded-xl group transition-colors
+                                                ${isActive ? 'bg-white text-[#5353ec]' : 'text-white hover:bg-white/10'}
+                                            `}>
+                                            <div className={isActive ? 'text-[#5353ec]' : 'text-white'}>{item.icon}</div>
+                                            <span className="ms-3">{item.name}</span>
+                                        </Link>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    </div>
 
-                    <div className="border-t border-gray-200 pt-4 mt-4">
-                        <a href="#" className="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group hover:text-[#5353ec]">
+                    {/* Logout */}
+                    <div className="p-4 mb-4">
+                        <a href="#" className="flex items-center p-3 text-white rounded-xl hover:bg-white/10 group">
                             <svg
-                                className="w-5 h-5 text-gray-500 transition duration-75 group-hover:text-[#5353ec]"
-                                aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
                                 viewBox="0 0 24 24"
-                                stroke="currentColor">
+                                strokeWidth={1.5}
+                                stroke="currentColor"
+                                className="w-5 h-5">
                                 <path
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                                    d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
                                 />
                             </svg>
-                            <span className="ms-3">Log Out</span>
+                            <span className="ms-3">Logout</span>
                         </a>
                     </div>
                 </div>

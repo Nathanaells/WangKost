@@ -5,7 +5,7 @@ export default function Dashboard() {
                 {/* Header */}
                 <div className="flex justify-between items-start mb-8">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+                        {/* Main Content Disini */}
                     </div>
                 </div>
             </div>

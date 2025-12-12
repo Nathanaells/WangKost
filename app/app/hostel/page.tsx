@@ -7,12 +7,7 @@ export default function Hostel() {
             <div className="max-w-7xl mx-auto pt-6">
                 {/* Header */}
                 <div className="flex justify-between items-start mb-8">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Hostel Administration</h1>
-                        <p className="text-gray-500 mt-1">Manage hostel buildings and room assignments.</p>
-                    </div>
                     <div className="flex items-center gap-3">
-                        <span className="text-gray-900 font-medium">Add Building</span>
                         <button className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 transition-colors">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -24,6 +19,7 @@ export default function Hostel() {
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                             </svg>
                         </button>
+                        <span className="text-gray-900 font-medium">Add Building</span>
                     </div>
                 </div>
 
