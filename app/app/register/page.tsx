@@ -1,12 +1,14 @@
 "use client"
 import { useState } from 'react';
+import { showSuccessToast } from '@/utils/toast';
+import { validateFormFields, handleApiError, displayError, handleAsyncOperation, ValidationError } from '@/utils/errorHandler';
 
 export default function Register() {
   const [formData, setFormData] = useState({
-    username: '',
+    name: '',
     email: '',
     password: '',
-    phone: ''
+    phoneNumber: ''
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showPassword, setShowPassword] = useState(false);
@@ -22,8 +24,8 @@ export default function Register() {
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
     
-    if (!formData.username.trim()) {
-      newErrors.username = 'Username wajib diisi';
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name wajib diisi';
     }
     
     if (!formData.email.trim()) {
@@ -32,28 +34,58 @@ export default function Register() {
       newErrors.email = 'Format email tidak valid';
     }
     
-    if (!formData.password) {
-      newErrors.password = 'Password wajib diisi';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password minimal 6 karakter';
+    try {
+      validateFormFields(formData, {
+        name: true,
+        email: true,
+        password: true,
+        phoneNumber: true
+      });
+      return newErrors; 
+    } catch (error: any) {
+      return error.errors || {};
     }
     
-    if (!formData.phone.trim()) {
-      newErrors.phone = 'No. HP wajib diisi';
-    } else if (!/^[0-9+\-\s()]+$/.test(formData.phone)) {
-      newErrors.phone = 'Format nomor HP tidak valid';
+    if (!formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = 'No. HP wajib diisi';
+    } else if (!/^[0-9+\-\s()]+$/.test(formData.phoneNumber)) {
+      newErrors.phoneNumber = 'Format nomor HP tidak valid';
     }
     
     return newErrors;
   };
 
-  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const newErrors = validateForm();
     
     if (Object.keys(newErrors).length === 0) {
-      console.log('Form submitted:', formData);
-      alert('Registrasi berhasil!');
+      try {
+        const response = await fetch('/api/admin/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          alert('Registrasi berhasil!');
+          
+          setFormData({
+            name: '',
+            email: '',
+            password: '',
+            phoneNumber: ''
+          });
+        } else {
+          alert(result.message || 'Terjadi kesalahan saat registrasi');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan saat registrasi');
+      }
     } else {
       setErrors(newErrors);
     }
@@ -75,23 +107,22 @@ export default function Register() {
 
           <div className="space-y-5">
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-black mb-2">
-                Username
+              <label htmlFor="name" className="block text-sm font-medium text-black mb-2">
+                Name
               </label>
               <input
                 type="text"
-                id="username"
-                name="username"
-                value={formData.username}
+                id="name"
+                name="name"
+                value={formData.name}
                 onChange={handleChange}
                 className={`text-black w-full px-4 py-3 rounded-lg border ${
-                  errors.username ? 'border-red-500' : 'border-gray-300'
+                  errors.name ? 'border-red-500' : 'border-gray-300'
                 } focus:ring-2 focus:ring-opacity-50 outline-none transition`}
-                // style={{ focusRingColor: '#5353ec' }}
-                placeholder="Masukkan username"
+                placeholder="Masukkan nama"
               />
-              {errors.username && (
-                <p className="text-red-500 text-sm mt-1">{errors.username}</p>
+              {errors.name && (
+                <p className="text-red-500 text-sm mt-1">{errors.name}</p>
               )}
             </div>
 
@@ -154,26 +185,27 @@ export default function Register() {
             </div>
 
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
                 No. HP
               </label>
               <input
                 type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
+                id="phoneNumber"
+                name="phoneNumber"
+                value={formData.phoneNumber}
                 onChange={handleChange}
                 className={`text-black w-full px-4 py-3 rounded-lg border ${
-                  errors.phone ? 'border-red-500' : 'border-gray-300'
+                  errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
                 } focus:ring-2 focus:ring-opacity-50 outline-none transition`}
                 placeholder="08123456789"
               />
-              {errors.phone && (
-                <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+              {errors.phoneNumber && (
+                <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
               )}
             </div>
 
             <button
+              type="button"
               onClick={handleSubmit}
               className="w-full text-white py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
               style={{ backgroundColor: '#5353ec' }}
@@ -185,7 +217,7 @@ export default function Register() {
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               Sudah punya akun?{' '}
-              <a href="#" className="font-semibold hover:underline" style={{ color: '#5353ec' }}>
+              <a href="/login" className="font-semibold hover:underline" style={{ color: '#5353ec' }}>
                 Masuk di sini
               </a>
             </p>
