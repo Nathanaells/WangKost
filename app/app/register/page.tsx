@@ -1,5 +1,7 @@
 "use client"
 import { useState } from 'react';
+import { showSuccessToast } from '@/utils/toast';
+import { validateFormFields, handleApiError, displayError, handleAsyncOperation, ValidationError } from '@/utils/errorHandler';
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -22,37 +24,35 @@ export default function Register() {
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
     
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name wajib diisi';
-    }
     
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email wajib diisi';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Format email tidak valid';
+    try {
+      validateFormFields(formData, {
+        name: true,
+        email: true,
+        password: true,
+        phoneNumber: true
+      });
+      return newErrors; 
+    } catch (error: any) {
+      return error.errors || {};
     }
-    
-    if (!formData.password) {
-      newErrors.password = 'Password wajib diisi';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password minimal 6 karakter';
-    }
-    
-    if (!formData.phoneNumber.trim()) {
-      newErrors.phoneNumber = 'No. HP wajib diisi';
-    } else if (!/^[0-9+\-\s()]+$/.test(formData.phoneNumber)) {
-      newErrors.phoneNumber = 'Format nomor HP tidak valid';
-    }
-    
-    return newErrors;
   };
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const newErrors = validateForm();
     
-    if (Object.keys(newErrors).length === 0) {
-      try {
+    
+    await handleAsyncOperation(
+      async () => {
+        
+        validateFormFields(formData, {
+          name: true,
+          email: true,
+          password: true,
+          phoneNumber: true
+        });
+
+      
         const response = await fetch('/api/admin/register', {
           method: 'POST',
           headers: {
@@ -61,27 +61,35 @@ export default function Register() {
           body: JSON.stringify(formData),
         });
 
-        const result = await response.json();
-
-        if (response.ok) {
-          alert('Registrasi berhasil!');
-          
-          setFormData({
-            name: '',
-            email: '',
-            password: '',
-            phoneNumber: ''
-          });
-        } else {
-          alert(result.message || 'Terjadi kesalahan saat registrasi');
+        
+        if (!response.ok) {
+          await handleApiError(response);
         }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Terjadi kesalahan saat registrasi');
+
+        const result = await response.json();
+        return result;
+      },
+      (result) => {
+        
+        showSuccessToast('Registrasi berhasil! Selamat datang!');
+        setFormData({
+          name: '',
+          email: '',
+          password: '',
+          phoneNumber: ''
+        });
+        setErrors({});
+      },
+      (error) => {
+        
+        displayError(error);
+        
+       
+        if (error instanceof ValidationError) {
+          setErrors(error.errors);
+        }
       }
-    } else {
-      setErrors(newErrors);
-    }
+    );
   };
 
   return (
@@ -198,6 +206,7 @@ export default function Register() {
             </div>
 
             <button
+              type="button"
               onClick={handleSubmit}
               className="w-full text-white py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
               style={{ backgroundColor: '#5353ec' }}
