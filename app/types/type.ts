@@ -1,18 +1,39 @@
 import { ObjectId } from "mongodb";
-import {
-  Model,
-  IMongoloquentSchema,
-  IMongoloquentTimestamps,
-} from "mongoloquent";
 
-export enum TransactionStatus {
-  Unpaid = "UNPAID",
-  Paid = "PAID",
-  Pendng = "PENDING",
+export interface IProduct {
+  _id: ObjectId;
+  name: string;
+  slug: string;
+  description: string;
+  excerpt: string;
+  price: number;
+  tags: string[];
+  thumbnail: string;
+  images: string[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface IOwner {
+export interface Product {
+  _id?: ObjectId | string;
+  slug: string;
   name: string;
+  price: number;
+  thumbnail: string;
+  excerpt: string;
+  tags: string[];
+}
+
+export interface IProducts {
+  products: IProduct[];
+  total: number;
+  
+  totalPages: number;
+}
+
+export interface IUser {
+  name: string;
+  username: string;
   email: string;
   password: string;
   phoneNumber: string;
