@@ -12,12 +12,19 @@ interface IOwner extends IMongoloquentSchema, IMongoloquentTimestamps {
   email: string;
   password: string;
   phoneNumber: string;
-  hostels: Hostel[];
 }
 
-export const ownerSchema = z.object({
+export const ownerRegisterSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  phoneNumber: z.string().refine((value) => {
+    const phone = parsePhoneNumberFromString(value, "ID");
+    return phone?.isValid();
+  }, "Invalid phone number"),
+});
+
+export const ownerLoginSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
   phoneNumber: z.string().refine((value) => {
     const phone = parsePhoneNumberFromString(value, "ID");
