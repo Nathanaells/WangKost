@@ -19,7 +19,7 @@ interface IHostel extends IMongoloquentSchema, IMongoloquentTimestamps {
 export const hostelCreateSchema = z.object({
   name: z.string().min(3, "Name is required"),
   address: z.string().min(6, "Address is required"),
-})
+});
 
 export default class Hostel extends Model<IHostel> {
   public static $schema: IHostel;
