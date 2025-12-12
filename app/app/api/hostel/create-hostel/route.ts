@@ -22,8 +22,7 @@ export async function POST(req: NextRequest) {
         })
 
         // Duplicate Check
-        const hostel = await Hostel.where("name", body.name)
-        .first();
+        const hostel = await Hostel.where({ name: body.name, ownerId: _id }).first();
 
         if (hostel) {
             throw new BadRequest("Hostel already exists")
