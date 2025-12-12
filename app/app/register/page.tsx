@@ -24,6 +24,15 @@ export default function Register() {
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
     
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name wajib diisi';
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email wajib diisi';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Format email tidak valid';
+    }
     
     try {
       validateFormFields(formData, {
@@ -36,23 +45,21 @@ export default function Register() {
     } catch (error: any) {
       return error.errors || {};
     }
+    
+    if (!formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = 'No. HP wajib diisi';
+    } else if (!/^[0-9+\-\s()]+$/.test(formData.phoneNumber)) {
+      newErrors.phoneNumber = 'Format nomor HP tidak valid';
+    }
+    
+    return newErrors;
   };
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     
-    
-    await handleAsyncOperation(
-      async () => {
-        
-        validateFormFields(formData, {
-          name: true,
-          email: true,
-          password: true,
-          phoneNumber: true
-        });
-
-      
+    if (Object.keys(newErrors).length === 0) {
+      try {
         const response = await fetch('/api/admin/register', {
           method: 'POST',
           headers: {
@@ -61,35 +68,27 @@ export default function Register() {
           body: JSON.stringify(formData),
         });
 
-        
-        if (!response.ok) {
-          await handleApiError(response);
-        }
-
         const result = await response.json();
-        return result;
-      },
-      (result) => {
-        
-        showSuccessToast('Registrasi berhasil! Selamat datang!');
-        setFormData({
-          name: '',
-          email: '',
-          password: '',
-          phoneNumber: ''
-        });
-        setErrors({});
-      },
-      (error) => {
-        
-        displayError(error);
-        
-       
-        if (error instanceof ValidationError) {
-          setErrors(error.errors);
+
+        if (response.ok) {
+          alert('Registrasi berhasil!');
+          
+          setFormData({
+            name: '',
+            email: '',
+            password: '',
+            phoneNumber: ''
+          });
+        } else {
+          alert(result.message || 'Terjadi kesalahan saat registrasi');
         }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan saat registrasi');
       }
-    );
+    } else {
+      setErrors(newErrors);
+    }
   };
 
   return (
