@@ -3,7 +3,7 @@ import {
   IMongoloquentSchema,
   IMongoloquentTimestamps,
 } from "mongoloquent";
-import Hostel from "./Hostel";
+import Hostel from "./hostel";
 import z from "zod";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 
