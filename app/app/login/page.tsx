@@ -1,5 +1,7 @@
 "use client"
 import { useState } from 'react';
+import { showSuccessToast } from '@/utils/toast';
+import { validateFormFields, displayError, ValidationError, handleAsyncOperation } from '@/utils/errorHandler';
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -20,31 +22,49 @@ export default function Login() {
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
     
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email wajib diisi';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Format email tidak valid';
-    }
     
-    if (!formData.password) {
-      newErrors.password = 'Password wajib diisi';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password minimal 6 karakter';
+    try {
+      validateFormFields(formData, {
+        email: true,
+        password: true
+      });
+      return newErrors; 
+    } catch (error: any) {
+      return error.errors || {};
     }
-    
-    return newErrors;
   };
 
-  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const newErrors = validateForm();
     
-    if (Object.keys(newErrors).length === 0) {
-      console.log('Form submitted:', formData);
-      alert('Login berhasil!');
-    } else {
-      setErrors(newErrors);
-    }
+    
+    await handleAsyncOperation(
+      async () => {
+       
+        validateFormFields(formData, {
+          email: true,
+          password: true
+        });
+
+        
+        return { message: 'Login successful' };
+      },
+      (result) => {
+       
+        console.log('Form submitted:', formData);
+        showSuccessToast('Login berhasil! Selamat datang kembali!');
+        setErrors({});
+      },
+      (error) => {
+        
+        displayError(error);
+        
+       
+        if (error instanceof ValidationError) {
+          setErrors(error.errors);
+        }
+      }
+    );
   };
 
   return (
@@ -146,7 +166,7 @@ export default function Login() {
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               Belum punya akun?{' '}
-              <a href="#" className="font-semibold hover:underline" style={{ color: '#5353ec' }}>
+              <a href="/register" className="font-semibold hover:underline" style={{ color: '#5353ec' }}>
                 Daftar sekarang
               </a>
             </p>
