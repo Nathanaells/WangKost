@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
         })
 
         return NextResponse.json(
-            {message: "Tenant added sucessfully"},
+            {message: "Tenant added successfully"},
             {status: 201}
         )
     } catch (error: unknown) {
