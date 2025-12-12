@@ -1,5 +1,7 @@
 "use client"
 import { useState } from 'react';
+import { showSuccessToast } from '@/utils/toast';
+import { validateFormFields, handleApiError, displayError, handleAsyncOperation, ValidationError } from '@/utils/errorHandler';
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -32,10 +34,16 @@ export default function Register() {
       newErrors.email = 'Format email tidak valid';
     }
     
-    if (!formData.password) {
-      newErrors.password = 'Password wajib diisi';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password minimal 6 karakter';
+    try {
+      validateFormFields(formData, {
+        name: true,
+        email: true,
+        password: true,
+        phoneNumber: true
+      });
+      return newErrors; 
+    } catch (error: any) {
+      return error.errors || {};
     }
     
     if (!formData.phoneNumber.trim()) {
@@ -49,7 +57,6 @@ export default function Register() {
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const newErrors = validateForm();
     
     if (Object.keys(newErrors).length === 0) {
       try {
@@ -198,6 +205,7 @@ export default function Register() {
             </div>
 
             <button
+              type="button"
               onClick={handleSubmit}
               className="w-full text-white py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
               style={{ backgroundColor: '#5353ec' }}
