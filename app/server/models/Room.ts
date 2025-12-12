@@ -13,7 +13,7 @@ interface IRoom extends IMongoloquentSchema, IMongoloquentTimestamps {
   fixedCost: number;
   isAvailable: boolean;
   hostelId: ObjectId;
-  tenants: Tenant[];
+  tenants?: Tenant[];
 }
 
 export default class Room extends Model<IRoom> {
