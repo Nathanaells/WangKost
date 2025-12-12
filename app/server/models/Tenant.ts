@@ -20,7 +20,7 @@ interface ITenant extends IMongoloquentSchema, IMongoloquentTimestamps {
 export const tenantCreateSchema = z.object({
   name: z.string().min(3, "Tenant name is required"),
   email: z.email("Invalid email address"),
-  birthay: z.date("Invalid birth date"),
+  birthday: z.date("Invalid birth date"),
   phoneNumber: z.string().refine((value) => {
     const phone = parsePhoneNumberFromString(value, "ID");
     return phone?.isValid();
