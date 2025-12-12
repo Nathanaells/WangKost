@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
         tenantCreateSchema.parse({
             name: body.name,
             email: body.email,
-            birthdate: body.birthday,
+            birthday: body.birthday,
             phoneNumber: body.phoneNumber
         });
 
