@@ -1,17 +1,20 @@
-import { Model, IMongoloquentSchema, IMongoloquentTimestamps } from "mongoloquent";
-import Rent from "./rent";
-
+import {
+  Model,
+  IMongoloquentSchema,
+  IMongoloquentTimestamps,
+} from "mongoloquent";
+import Rent from "./Rent";
 
 interface IAdditional extends IMongoloquentSchema, IMongoloquentTimestamps {
-    name: string;
-    price: number
+  name: string;
+  price: number;
 }
 
 export default class Additional extends Model<IAdditional> {
-    public static $schema: IAdditional
-    protected $collection: string = "additionals";
+  public static $schema: IAdditional;
+  protected $collection: string = "additionals";
 
-    public rent() {
-        this.belongsToMany(Rent)
-    }
- }
+  public rent() {
+    this.belongsToMany(Rent);
+  }
+}

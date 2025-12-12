@@ -5,17 +5,18 @@ import {
 } from "mongoloquent";
 import Room from "./Room";
 import Owner from "./Owner";
+import { ObjectId } from "mongodb";
 
 interface IHostel extends IMongoloquentSchema, IMongoloquentTimestamps {
   name: string;
   address: string;
   maxRoom?: number;
   description?: string;
-  adminId: string;
+  ownerId: ObjectId;
   rooms: Room[];
 }
 
-export class Hostel extends Model<IHostel> {
+export default class Hostel extends Model<IHostel> {
   public static $schema: IHostel;
   protected $collection: string = "hostels";
 
