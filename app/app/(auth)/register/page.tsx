@@ -1,6 +1,7 @@
 "use client";
 import url from "@/components/constant";
-import { showError, showSuccess } from "@/components/Toast"
+import { showError, showSuccess } from "@/components/toast";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { Toaster } from "react-hot-toast";
 
@@ -9,6 +10,7 @@ export default function Register() {
   const [email, setEmail] = useState<string>("");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const router = useRouter();
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -30,12 +32,14 @@ export default function Register() {
         });
         return;
       } else {
-        showError(data.message[0]);
+        let text: string = data.message[0].split(":")[1];
+        showError(text);
         return;
       }
     }
 
     showSuccess("Success Registrasi");
+    router.push("/login");
   }
 
   return (

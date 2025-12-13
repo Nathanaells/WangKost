@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
 
     const id = req.headers.get("x-owner-id");
     if (!id) throw new UnauthorizedError();
+    
     const _id = new ObjectId(id);
 
     // Parse and body validation
