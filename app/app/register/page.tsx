@@ -51,6 +51,7 @@ export default function Register() {
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     
+<<<<<<< HEAD
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -85,6 +86,38 @@ export default function Register() {
     } catch (error) {
       console.error('Error:', error);
       showErrorToast('Terjadi kesalahan saat registrasi');
+=======
+    if (Object.keys(newErrors).length === 0) {
+      try {
+        const response = await fetch('/api/admin/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          alert('Registrasi berhasil!');
+          
+          setFormData({
+            name: '',
+            email: '',
+            password: '',
+            phoneNumber: ''
+          });
+        } else {
+          alert(result.message || 'Terjadi kesalahan saat registrasi');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan saat registrasi');
+      }
+    } else {
+      setErrors(newErrors);
+>>>>>>> d628ceb (sambungkan api register)
     }
   };
 
