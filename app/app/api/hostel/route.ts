@@ -5,19 +5,18 @@ import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-    try {
-        // Validations
-        const id = req.headers.get('x-owner-id')
-        if (!id) throw new UnauthorizedError()
-        const _id = new ObjectId(id)
-        
-        // Get & Send Data
-        const hostels = await Hostel.where("ownerId", _id).get()
+  try {
+    // Validations
+    const id = req.headers.get("x-owner-id");
+    if (!id) throw new UnauthorizedError();
+    const _id = new ObjectId(id);
 
-        return NextResponse.json(hostels)
+    // Get & Send Data
+    const hostels = await Hostel.where("ownerId", _id).get();
 
-    } catch (error: unknown) {
-        const {message, status} = customError(error)
-        return NextResponse.json({message}, {status})
-    }
+    return NextResponse.json(hostels);
+  } catch (error: unknown) {
+    const { message, status } = customError(error);
+    return NextResponse.json({ message }, { status });
+  }
 }

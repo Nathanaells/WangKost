@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
 
     const id = req.headers.get("x-owner-id");
     if (!id) throw new UnauthorizedError();
+    
     const _id = new ObjectId(id);
 
     // Parse and body validation
@@ -40,7 +41,6 @@ export async function POST(req: NextRequest) {
       throw new BadRequest("Hostel already exists");
     }
 
-    // Create Hostel
     await Hostel.create({
       name: body.name,
       description: body.description,
