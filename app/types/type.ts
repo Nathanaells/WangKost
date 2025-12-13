@@ -6,16 +6,9 @@ import {
 } from "mongoloquent";
 
 export enum TransactionStatus {
-  Unpaid = "UNPAID",
-  Paid = "PAID",
-  Pendng = "PENDING",
-}
-
-export interface IOwner {
-  name: string;
-  email: string;
-  password: string;
-  phoneNumber: string;
+  paid = "PAID",
+  unpaid = "UNPAID",
+  pending = "PENDING",
 }
 
 export interface IJWTPayload {
@@ -24,12 +17,19 @@ export interface IJWTPayload {
   email: string;
 }
 
-export interface IHostel extends IMongoloquentSchema, IMongoloquentTimestamps {
+export interface IHostel {
   name: string;
   address: string;
   maxRoom?: number;
   description?: string;
   ownerId: ObjectId;
+}
+
+export interface IOwner {
+  name: string;
+  email: string;
+  password: string;
+  phoneNumber: string;
 }
 
 export interface IRoom {
