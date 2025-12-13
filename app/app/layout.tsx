@@ -35,28 +35,18 @@ export default function RootLayout({
           position="top-right"
           reverseOrder={false}
           gutter={8}
-          containerClassName=""
-          containerStyle={{}}
+          containerStyle={{
+            top: 20,
+            right: 20,
+          }}
           toastOptions={{
-            // Define default options
-            className: '',
             duration: 4000,
             style: {
-              background: '#363636',
-              color: '#fff',
-            },
-            // Default options for specific types
-            success: {
-              duration: 3000,
-              style: {
-                background: '#22c55e',
-              },
-            },
-            error: {
-              duration: 4000,
-              style: {
-                background: '#ef4444',
-              },
+              fontSize: '14px',
+              fontWeight: '600',
+              padding: '12px 16px',
+              borderRadius: '8px',
+              maxWidth: '400px',
             },
           }}
         />

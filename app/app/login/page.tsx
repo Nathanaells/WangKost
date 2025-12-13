@@ -32,6 +32,8 @@ export default function Login() {
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password minimal 6 karakter';
     }
+    
+    return newErrors;
   };
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {

@@ -33,16 +33,10 @@ export default function Register() {
       newErrors.email = 'Format email tidak valid';
     }
     
-    try {
-      validateFormFields(formData, {
-        name: true,
-        email: true,
-        password: true,
-        phoneNumber: true
-      });
-      return newErrors; 
-    } catch (error: any) {
-      return error.errors || {};
+    if (!formData.password.trim()) {
+      newErrors.password = 'Password wajib diisi';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password minimal 6 karakter';
     }
     
     if (!formData.phoneNumber.trim()) {
