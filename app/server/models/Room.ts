@@ -4,7 +4,7 @@ import {
   IMongoloquentTimestamps,
 } from "mongoloquent";
 
-import Hostel from "./Hostel";
+import Hostel from "./hostel";
 import { ObjectId } from "mongodb";
 import Rent from "./Rent";
 import Tenant from "./Tenant";

@@ -1,7 +1,6 @@
 "use client"
 import { useState } from 'react';
-import { showSuccessToast } from '@/utils/toast';
-import { validateFormFields, handleApiError, displayError, handleAsyncOperation, ValidationError } from '@/utils/errorHandler';
+import { showSuccessToast, showErrorToast, showValidationErrors } from '@/components/toast';
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -30,7 +29,7 @@ export default function Register() {
     
     if (!formData.email.trim()) {
       newErrors.email = 'Email wajib diisi';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Format email tidak valid';
     }
     
@@ -58,36 +57,40 @@ export default function Register() {
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     
-    if (Object.keys(newErrors).length === 0) {
-      try {
-        const response = await fetch('/api/admin/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData),
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      
+      showValidationErrors(validationErrors);
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/admin/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        showSuccessToast('Registrasi berhasil! Selamat datang!');
+        setFormData({
+          name: '',
+          email: '',
+          password: '',
+          phoneNumber: ''
         });
-
-        const result = await response.json();
-
-        if (response.ok) {
-          alert('Registrasi berhasil!');
-          
-          setFormData({
-            name: '',
-            email: '',
-            password: '',
-            phoneNumber: ''
-          });
-        } else {
-          alert(result.message || 'Terjadi kesalahan saat registrasi');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Terjadi kesalahan saat registrasi');
+        setErrors({});
+      } else {
+        showErrorToast(data.message || 'Terjadi kesalahan saat registrasi');
       }
-    } else {
-      setErrors(newErrors);
+    } catch (error) {
+      console.error('Error:', error);
+      showErrorToast('Terjadi kesalahan saat registrasi');
     }
   };
 
@@ -152,7 +155,7 @@ export default function Register() {
               </label>
               <div className="relative">
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? 'text' : 'password'}   
                   id="password"
                   name="password"
                   value={formData.password}
