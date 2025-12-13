@@ -16,6 +16,8 @@ interface IRoom extends IMongoloquentSchema, IMongoloquentTimestamps {
   tenants?: Tenant[];
 }
 
+
+
 export default class Room extends Model<IRoom> {
   public static $schema: IRoom;
   protected $collection: string = "rooms";
