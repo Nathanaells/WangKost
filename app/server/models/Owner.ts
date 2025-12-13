@@ -36,7 +36,7 @@ export default class Owner extends Model<IOwner> {
   public static $schema: IOwner;
   protected $collection: string = "owners";
 
-  public hostel() {
-    this.hasMany(Hostel);
+  public hostels() {
+    return this.hasMany(Hostel);
   }
 }

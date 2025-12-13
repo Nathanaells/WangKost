@@ -8,15 +8,30 @@ import { IHostel } from "@/types/type";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 
+export async function GET(req: NextRequest) {
+  try {
+    // Validations
+    const id = req.headers.get("x-owner-id");
+    if (!id) throw new UnauthorizedError();
+    const _id = new ObjectId(id);
+
+    console.log(_id);
+
+    const hostels = await Hostel.where("ownerId", _id).get();
+
+    return NextResponse.json(hostels);
+  } catch (error: unknown) {
+    const { message, status } = customError(error);
+    return NextResponse.json({ message }, { status });
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body: IHostel = await req.json();
     // Validations
-    //! Missing: Token validations from cookie?
-
     const id = req.headers.get("x-owner-id");
     if (!id) throw new UnauthorizedError();
-    
     const _id = new ObjectId(id);
 
     // Parse and body validation
@@ -25,15 +40,8 @@ export async function POST(req: NextRequest) {
       address: body.address,
     });
 
-        // Duplicate Check
-        const hostel = await Hostel.where("name", body.name).first();
-
-    // * Cara Pakai where >
-    /*
-   const owner = await Owner.where("email", body.email)
-      .where("phoneNumber", body.phoneNumber)
-      .first();
-    */
+    // Duplicate Check
+    const hostel = await Hostel.where("name", body.name).first();
 
     if (hostel) {
       throw new BadRequest("Hostel already exists");
