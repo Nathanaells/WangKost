@@ -1,7 +1,7 @@
 import { BadRequest } from "@/server/errorHandler/classError";
 import customError from "@/server/errorHandler/customError";
 import { hashPassword } from "@/server/helpers/bcrypt";
-import Owner, { ownerSchema } from "@/server/models/Owner";
+import Owner, { ownerRegisterSchema } from "@/server/models/Owner";
 import { IOwner } from "@/types/type";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   try {
     const body: IOwner = await req.json();
 
-    ownerSchema.parse({
+    ownerRegisterSchema.parse({
       name: body.name,
       email: body.email,
       password: body.password,

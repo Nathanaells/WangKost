@@ -18,11 +18,24 @@ export interface IOwner {
   phoneNumber: string;
 }
 
+export interface IJWTPayload {
+  userId: ObjectId;
+  phoneNumber: string;
+  email: string;
+}
+
+export interface IHostel extends IMongoloquentSchema, IMongoloquentTimestamps {
+  name: string;
+  address: string;
+  maxRoom?: number;
+  description?: string;
+  ownerId: ObjectId;
+}
+
 export interface IRoom {
   fixedCost: number;
   isAvailable: boolean;
   hostelId: ObjectId;
-  tenants: ITenant[];
 }
 
 export interface ITenant {
@@ -31,7 +44,6 @@ export interface ITenant {
   birthday: Date;
   phoneNumber: string;
   isActive: boolean;
-  rents: IRent[];
 }
 
 export interface IRent {
