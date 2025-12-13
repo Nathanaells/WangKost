@@ -3,7 +3,7 @@ import customError from "@/server/errorHandler/customError";
 import Additional from "@/server/models/Additional";
 import { NextRequest, NextResponse } from "next/server";
 
-// GET all additionals
+
 export async function GET(req: NextRequest) {
   try {
     const id = req.headers.get("x-owner-id");
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST create a new additional
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();

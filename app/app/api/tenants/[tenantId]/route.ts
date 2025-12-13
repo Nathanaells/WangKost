@@ -11,7 +11,6 @@ interface IProps {
   params: Promise<{ tenantId: string }>;
 }
 
-// GET single tenant
 export async function GET(req: NextRequest, props: IProps) {
   try {
     const id = req.headers.get("x-owner-id");
@@ -30,7 +29,7 @@ export async function GET(req: NextRequest, props: IProps) {
   }
 }
 
-// PATCH update tenant
+
 export async function PATCH(req: NextRequest, props: IProps) {
   try {
     const body = await req.json();

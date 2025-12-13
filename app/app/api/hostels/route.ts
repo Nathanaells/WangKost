@@ -8,7 +8,6 @@ import { IHostel } from "@/types/type";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 
-// GET all hostels for the authenticated owner
 export async function GET(req: NextRequest) {
   try {
     // Validations
@@ -16,7 +15,8 @@ export async function GET(req: NextRequest) {
     if (!id) throw new UnauthorizedError();
     const _id = new ObjectId(id);
 
-    // Get & Send Data
+    console.log(_id);
+
     const hostels = await Hostel.where("ownerId", _id).get();
 
     return NextResponse.json(hostels);
@@ -26,7 +26,6 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST create a new hostel
 export async function POST(req: NextRequest) {
   try {
     const body: IHostel = await req.json();

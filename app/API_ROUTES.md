@@ -12,9 +12,9 @@ API routes telah direorganisasi untuk struktur yang lebih bersih dan RESTful.
 
 ## Authentication Routes
 
-### Auth - Register
+### Admin - Register
 
-- **Endpoint:** `POST /api/auth/register`
+- **Endpoint:** `POST /api/admin/register`
 - **Description:** Register new owner account
 - **Auth Required:** No
 - **Body:**
@@ -27,9 +27,9 @@ API routes telah direorganisasi untuk struktur yang lebih bersih dan RESTful.
   }
   ```
 
-### Auth - Login
+### Admin - Login
 
-- **Endpoint:** `POST /api/auth/login`
+- **Endpoint:** `POST /api/admin/login`
 - **Description:** Login owner account
 - **Auth Required:** No
 - **Body:**
@@ -319,8 +319,8 @@ API routes telah direorganisasi untuk struktur yang lebih bersih dan RESTful.
 
 | Old Endpoint                 | New Endpoint                             |
 | ---------------------------- | ---------------------------------------- |
-| `/api/admin/register`        | `/api/auth/register`                     |
-| `/api/admin/login`           | `/api/auth/login`                        |
+| `/api/auth/register`         | `/api/admin/register`                    |
+| `/api/auth/login`            | `/api/admin/login`                       |
 | `/api/hostel`                | `/api/hostels`                           |
 | `/api/hostel/create-hostel`  | `/api/hostels` (POST)                    |
 | `/api/hostel/[id]`           | `/api/hostels/[hostelId]`                |

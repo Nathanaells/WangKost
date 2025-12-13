@@ -15,6 +15,6 @@ export default class Additional extends Model<IAdditional> {
   protected $collection: string = "additionals";
 
   public rent() {
-    this.belongsToMany(Rent);
+    return this.belongsToMany(Rent);
   }
 }

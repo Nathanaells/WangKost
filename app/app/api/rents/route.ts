@@ -69,7 +69,6 @@ export async function POST(req: NextRequest) {
       price: body.price,
       roomId: roomId,
       tenantId: tenantId,
-      additionals: [],
       joinAt: body.joinAt ? new Date(body.joinAt) : new Date(),
     });
     return NextResponse.json({ message: "Rent created" }, { status: 201 });

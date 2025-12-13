@@ -34,7 +34,6 @@ export async function POST(req: NextRequest, props: IProps) {
       fixedCost: body.fixedCost,
       isAvailable: true,
       hostelId: hostelObjectId,
-      tenants: [],
     });
 
     return NextResponse.json(
