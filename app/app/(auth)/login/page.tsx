@@ -1,13 +1,15 @@
 "use client";
 import { useState } from "react";
-import { showError, showSuccess } from "@/components/Toast.ts";
+import { showError, showSuccess } from "@/components/toast";
 import url from "@/components/constant";
-import { setCookie } from "@/app/login/action";
+import { setCookie } from "@/app/(auth)/login/action";
 import { Toaster } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +23,6 @@ export default function LoginPage() {
     });
 
     const data = await resp.json();
-
     if (!resp.ok) {
       if (data.message.length > 1) {
         data.message.forEach((el: string) => {
@@ -30,7 +31,8 @@ export default function LoginPage() {
         });
         return;
       } else {
-        showError(data.message[0]);
+        let text: string = data.message[0].split(":")[1];
+        showError(text);
         return;
       }
     }
@@ -38,6 +40,9 @@ export default function LoginPage() {
     setCookie("access_token", data.access_token);
 
     showSuccess("Success Login");
+    setTimeout(() => {
+      router.push("/");
+    }, 1500);
   };
 
   return (
