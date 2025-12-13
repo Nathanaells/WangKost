@@ -3,10 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 let cronStarted = false;
 
-/**
- * GET /api/cron/init
- * Initialize cron jobs (call this once when server starts)
- */
 export async function GET(req: NextRequest) {
   try {
     if (cronStarted) {

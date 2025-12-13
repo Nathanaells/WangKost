@@ -3,6 +3,7 @@
 ## 🎯 Apa yang Dilakukan Cron Job?
 
 Cron job akan jalan **setiap hari pukul 00:00 (midnight)** dan:
+
 1. Mengecek semua rent yang aktif
 2. Menghitung tanggal pembayaran berikutnya (1 bulan dari joinAt)
 3. Jika **7 hari sebelum** tanggal pembayaran:
@@ -39,6 +40,7 @@ curl http://localhost:3000/api/cron/init
 ```
 
 Response:
+
 ```json
 {
   "message": "Cron jobs initialized successfully",
@@ -65,6 +67,7 @@ echo "Cron jobs initialized!"
 ```
 
 Jalankan:
+
 ```bash
 chmod +x scripts/init-cron.sh
 ./scripts/init-cron.sh
@@ -73,6 +76,7 @@ chmod +x scripts/init-cron.sh
 ### 3. Verifikasi Cron Job Berjalan
 
 Cek console log, seharusnya ada:
+
 ```
 Invoice generation cron job started (runs daily at midnight)
 ```
@@ -158,11 +162,13 @@ tail -f logs/cron.log  # jika ada log file
 
 ```javascript
 // Check transactions yang dibuat oleh cron
-db.transactions.find({
-  createdAt: { 
-    $gte: new Date(new Date().setHours(0,0,0,0)) 
-  }
-}).sort({ createdAt: -1 })
+db.transactions
+  .find({
+    createdAt: {
+      $gte: new Date(new Date().setHours(0, 0, 0, 0)),
+    },
+  })
+  .sort({ createdAt: -1 });
 ```
 
 ## 🔄 Cron Schedule Patterns
@@ -189,14 +195,17 @@ cron.schedule("0 0 * * *", async () => {
 ### Cron tidak jalan?
 
 1. **Check apakah sudah di-init:**
+
    ```bash
    curl http://localhost:3000/api/cron/init
    ```
 
 2. **Check console log:**
+
    - Seharusnya ada: "Invoice generation cron job started"
 
 3. **Check timezone:**
+
    - Cron menggunakan timezone server
    - Set di .env: `MONGOLOQUENT_TIMEZONE=Asia/Jakarta`
 
@@ -209,11 +218,13 @@ cron.schedule("0 0 * * *", async () => {
 ### PDF tidak ter-generate?
 
 1. **Check Puppeteer installation:**
+
    ```bash
    npm install puppeteer --force
    ```
 
 2. **Check barcode generation:**
+
    ```bash
    npm install bwip-js
    ```
@@ -224,6 +235,7 @@ cron.schedule("0 0 * * *", async () => {
 ### WhatsApp tidak terkirim?
 
 1. **Check n8n webhook URL di .env:**
+
    ```env
    N8N_WEBHOOK_URL=https://your-n8n.com/webhook/whatsapp-invoice
    ```

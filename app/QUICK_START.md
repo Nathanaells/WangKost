@@ -28,6 +28,7 @@ curl http://localhost:3000/api/cron/init
 ```
 
 Expected response:
+
 ```json
 {
   "message": "Cron jobs initialized successfully",
@@ -112,12 +113,13 @@ x-owner-id: YOUR_OWNER_ID
 ```
 
 Expected response:
+
 ```json
 {
   "message": "Tenant added to room successfully",
   "data": {
     "rentId": "67...",
-    "totalPrice": 1500000,  // room cost + additionals
+    "totalPrice": 1500000, // room cost + additionals
     "joinAt": "2025-12-13T00:00:00.000Z"
   }
 }
@@ -138,6 +140,7 @@ x-owner-id: YOUR_OWNER_ID
 ```
 
 Expected response:
+
 ```json
 {
   "message": "Invoice generated successfully",
@@ -145,7 +148,7 @@ Expected response:
     "invoiceNumber": "INV-1234567890-67...",
     "paymentUrl": "https://app.sandbox.midtrans.com/snap/v3/...",
     "paymentToken": "abc123...",
-    "pdfBase64": "JVBERi0xLjQKJeLjz9MK...",  // very long base64
+    "pdfBase64": "JVBERi0xLjQKJeLjz9MK...", // very long base64
     "tenantPhone": "081234567890",
     "tenantEmail": "test@example.com"
   }
@@ -207,16 +210,19 @@ Restart server & cron akan jalan setiap menit.
 Jika ingin test WhatsApp notification lengkap:
 
 1. **Setup n8n:**
+
    - Install n8n: `npm install -g n8n`
    - Start: `n8n start`
    - Access: `http://localhost:5678`
 
 2. **Create Workflow:**
+
    - Import workflow dari `IMPLEMENTATION_GUIDE.md`
    - Setup WhatsApp API (Fonnte/Wablas)
    - Get webhook URL
 
 3. **Update .env:**
+
    ```env
    N8N_WEBHOOK_URL=http://localhost:5678/webhook/whatsapp-invoice
    ```
@@ -233,6 +239,7 @@ Jika ingin test WhatsApp notification lengkap:
 ### Database (MongoDB)
 
 Check collections:
+
 - `hostels` - hostel baru
 - `rooms` - room baru dengan tenant
 - `tenants` - tenant baru dengan rents array
@@ -262,6 +269,7 @@ Check collections:
 ### 1. Cron not starting
 
 **Solution:**
+
 ```bash
 # Call init endpoint
 curl http://localhost:3000/api/cron/init
@@ -270,6 +278,7 @@ curl http://localhost:3000/api/cron/init
 ### 2. PDF generation error
 
 **Solution:**
+
 ```bash
 # Reinstall puppeteer
 npm uninstall puppeteer
@@ -279,6 +288,7 @@ npm install puppeteer --force
 ### 3. Midtrans payment failed
 
 **Check:**
+
 - Server key & client key benar di .env
 - Webhook URL sudah di-set di Midtrans dashboard
 - Gunakan test cards yang benar
@@ -286,6 +296,7 @@ npm install puppeteer --force
 ### 4. Transaction not updating
 
 **Check:**
+
 - Webhook signature verification
 - Midtrans can reach your webhook URL
 - For local: use ngrok
@@ -308,6 +319,7 @@ Jika semua berhasil, Anda akan lihat:
 ## 📞 Need Help?
 
 Check dokumentasi:
+
 - `API_ROUTES.md` - API reference
 - `IMPLEMENTATION_GUIDE.md` - Complete guide
 - `CRONJOB_SETUP.md` - Cron job details
