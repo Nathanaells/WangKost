@@ -1,4 +1,9 @@
 import { ObjectId } from "mongodb";
+import {
+  Model,
+  IMongoloquentSchema,
+  IMongoloquentTimestamps,
+} from "mongoloquent";
 
 export enum TransactionStatus {
   paid = "PAID",

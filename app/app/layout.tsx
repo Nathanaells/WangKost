@@ -29,27 +29,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Sidebar></Sidebar>
+        <Sidebar />
         {children}
-        <Toaster 
-          position="top-right"
-          reverseOrder={false}
-          gutter={8}
-          containerStyle={{
-            top: 20,
-            right: 20,
-          }}
-          toastOptions={{
-            duration: 4000,
-            style: {
-              fontSize: '14px',
-              fontWeight: '600',
-              padding: '12px 16px',
-              borderRadius: '8px',
-              maxWidth: '400px',
-            },
-          }}
-        />
       </body>
     </html>
   );
