@@ -14,7 +14,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const resp = await fetch(`${url}/api/admin/login`, {
+    const resp = await fetch(`${url}/api/auth/login`, {
       method: "POST",
       headers: {
         "Content-type": "application/json",
