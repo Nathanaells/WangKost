@@ -1,6 +1,11 @@
 "use client"
 import { useState } from 'react';
+<<<<<<< HEAD
 import { showSuccessToast, showErrorToast, showValidationErrors } from '@/components/toast';
+=======
+import { showSuccessToast } from '@/utils/toast';
+import { validateFormFields, handleApiError, displayError, handleAsyncOperation, ValidationError } from '@/utils/errorHandler';
+>>>>>>> 8e5e784 (:toast register dan login)
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -23,10 +28,8 @@ export default function Register() {
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
     
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name wajib diisi';
-    }
     
+<<<<<<< HEAD
     if (!formData.email.trim()) {
       newErrors.email = 'Email wajib diisi';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -46,11 +49,25 @@ export default function Register() {
     }
     
     return newErrors;
+=======
+    try {
+      validateFormFields(formData, {
+        name: true,
+        email: true,
+        password: true,
+        phoneNumber: true
+      });
+      return newErrors; 
+    } catch (error: any) {
+      return error.errors || {};
+    }
+>>>>>>> 8e5e784 (:toast register dan login)
   };
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     
+<<<<<<< HEAD
 <<<<<<< HEAD
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
@@ -89,6 +106,20 @@ export default function Register() {
 =======
     if (Object.keys(newErrors).length === 0) {
       try {
+=======
+    
+    await handleAsyncOperation(
+      async () => {
+        
+        validateFormFields(formData, {
+          name: true,
+          email: true,
+          password: true,
+          phoneNumber: true
+        });
+
+      
+>>>>>>> 8e5e784 (:toast register dan login)
         const response = await fetch('/api/admin/register', {
           method: 'POST',
           headers: {
@@ -97,28 +128,42 @@ export default function Register() {
           body: JSON.stringify(formData),
         });
 
-        const result = await response.json();
-
-        if (response.ok) {
-          alert('Registrasi berhasil!');
-          
-          setFormData({
-            name: '',
-            email: '',
-            password: '',
-            phoneNumber: ''
-          });
-        } else {
-          alert(result.message || 'Terjadi kesalahan saat registrasi');
+        
+        if (!response.ok) {
+          await handleApiError(response);
         }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Terjadi kesalahan saat registrasi');
+
+        const result = await response.json();
+        return result;
+      },
+      (result) => {
+        
+        showSuccessToast('Registrasi berhasil! Selamat datang!');
+        setFormData({
+          name: '',
+          email: '',
+          password: '',
+          phoneNumber: ''
+        });
+        setErrors({});
+      },
+      (error) => {
+        
+        displayError(error);
+        
+       
+        if (error instanceof ValidationError) {
+          setErrors(error.errors);
+        }
       }
+<<<<<<< HEAD
     } else {
       setErrors(newErrors);
 >>>>>>> d628ceb (sambungkan api register)
     }
+=======
+    );
+>>>>>>> 8e5e784 (:toast register dan login)
   };
 
   return (
