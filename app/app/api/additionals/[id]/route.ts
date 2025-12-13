@@ -21,7 +21,10 @@ export async function PATCH(req: NextRequest, props: IProps) {
     const { id } = await props.params;
     const additionalObjectId = new ObjectId(id);
 
-    const additional = await Additional.where("_id", additionalObjectId).first();
+    const additional = await Additional.where(
+      "_id",
+      additionalObjectId
+    ).first();
     if (!additional) throw new NotFoundError("Additional not found");
 
     await Additional.where("_id", additionalObjectId).update(body);
@@ -42,7 +45,10 @@ export async function DELETE(req: NextRequest, props: IProps) {
     const { id } = await props.params;
     const additionalObjectId = new ObjectId(id);
 
-    const additional = await Additional.where("_id", additionalObjectId).first();
+    const additional = await Additional.where(
+      "_id",
+      additionalObjectId
+    ).first();
     if (!additional) throw new NotFoundError("Additional not found");
 
     await Additional.where("_id", additionalObjectId).delete();

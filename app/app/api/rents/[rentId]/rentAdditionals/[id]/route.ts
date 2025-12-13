@@ -26,7 +26,9 @@ export async function PATCH(req: NextRequest, props: IProps) {
 
     // Find and update the specific additional
     const additionals = rent.additionals || [];
-    const index = additionals.findIndex((add: any) => add._id?.toString() === id);
+    const index = additionals.findIndex(
+      (add: any) => add._id?.toString() === id
+    );
 
     if (index === -1) {
       throw new NotFoundError("Additional not found in rent");

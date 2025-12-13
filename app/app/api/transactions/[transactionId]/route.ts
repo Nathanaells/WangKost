@@ -20,7 +20,10 @@ export async function GET(req: NextRequest, props: IProps) {
     const { transactionId } = await props.params;
     const transactionObjectId = new ObjectId(transactionId);
 
-    const transaction = await Transaction.where("_id", transactionObjectId).first();
+    const transaction = await Transaction.where(
+      "_id",
+      transactionObjectId
+    ).first();
     if (!transaction) throw new NotFoundError("Transaction not found");
 
     return NextResponse.json(transaction);
