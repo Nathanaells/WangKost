@@ -29,37 +29,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Sidebar></Sidebar>
+        <Sidebar />
         {children}
-        <Toaster 
-          position="top-right"
-          reverseOrder={false}
-          gutter={8}
-          containerClassName=""
-          containerStyle={{}}
-          toastOptions={{
-            // Define default options
-            className: '',
-            duration: 4000,
-            style: {
-              background: '#363636',
-              color: '#fff',
-            },
-            // Default options for specific types
-            success: {
-              duration: 3000,
-              style: {
-                background: '#22c55e',
-              },
-            },
-            error: {
-              duration: 4000,
-              style: {
-                background: '#ef4444',
-              },
-            },
-          }}
-        />
       </body>
     </html>
   );

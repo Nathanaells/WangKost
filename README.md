@@ -28,6 +28,7 @@ git checkout development
 git pull
 git checkout your-branch-name
 git rebase development
+git rebase --continue  # if there are conflicts
 ```
 
 ⚠️ **Do NOT run `git pull origin development` while staying on your feature branch.**
