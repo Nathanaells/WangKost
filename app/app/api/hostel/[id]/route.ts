@@ -12,13 +12,13 @@ export async function GET(
         // Validations
         const ownerId = req.headers.get('x-owner-id')
         if (!ownerId) throw new UnauthorizedError()
-        const ownerObjectId = new ObjectId(ownerId)
-        
+
         // Get hostel by ID from params
         const hostelId = new ObjectId(params.id)
-
-
-        const hostel = await Hostel.where("_id", hostelId).first()
+        console.log(hostelId)
+        
+        const hostel = await Hostel.where("_id", hostelId).first();
+        console.log(hostel, "HOSTEL", 200)
         if (!hostel) {
             throw new NotFoundError("Hostel not found")
         }
