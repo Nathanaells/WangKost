@@ -21,7 +21,12 @@ export async function POST(req: NextRequest) {
       throw new UnauthorizedError("Invalid Phone number/password");
     }
 
-    if (!comparePassword(body.password, owner?.password as string)) {
+    const isValidPassword = await comparePassword(
+      body.password,
+      owner?.password as string
+    );
+
+    if (!isValidPassword) {
       throw new UnauthorizedError("Invalid Phone number/password");
     }
 

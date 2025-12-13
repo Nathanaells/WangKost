@@ -12,7 +12,7 @@ interface IRent extends IMongoloquentSchema, IMongoloquentTimestamps {
   price: number;
   roomId: ObjectId;
   tenantId: ObjectId;
-  additionals: Additional[];
+  additionals: Additional[]; // ?? Tidak perlu pakai key Additional
   leaveAt?: Date;
   joinAt: Date;
 }

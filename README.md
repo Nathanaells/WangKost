@@ -1,99 +1,171 @@
 # 📘 Repository Contribution Guide
 
-Welcome!\
-This document outlines the rules and workflow every team member must
-follow when contributing to this repository. The goal is to keep the
-project clean, organized, and free from unnecessary conflicts.
+Welcome!
+This document outlines the **mandatory rules and workflow** every team member must follow when contributing to this repository. The goal is to keep the project **clean, consistent, and free from unnecessary conflicts**.
 
 ---
 
 ## 🚀 Before You Start
 
-### 1. Install project dependencies
+### 1️⃣ Install project dependencies
 
-After cloning or pulling the repository, run:
+After cloning the repository or switching branches, run:
 
 ```bash
 npm install
 ```
 
-### 2. Pull the latest code from `development`
+---
 
-Always make sure your local environment is up-to-date:
+### 2️⃣ Always sync with `development` (IMPORTANT)
+
+Before starting any work, make sure your branch is up-to-date with the latest `development` branch.
+
+**Correct workflow:**
 
 ```bash
-git pull origin development
+git checkout development
+git pull
+git checkout your-branch-name
+git rebase development
 ```
 
-### 3. Create a new branch for each feature or task
+⚠️ **Do NOT run `git pull origin development` while staying on your feature branch.**
+This creates merge commits and increases the risk of conflicts.
 
-Branch naming examples: - `yourName/feature-name` - `feature/yourName`
+---
 
-Examples:
+### 3️⃣ Create a branch for every task or feature
 
-    nathan/auth-login
-    ui/fix-navbar
+Never work directly on `development` or `main`.
 
-### 4. Push your changes into your branch (targeting `development`)
+**Branch naming convention:**
 
-After committing:
+- `yourName/feature-name`
+- `yourName/fix-bug`
+
+**Examples:**
+
+```
+nathan/auth-login
+haris/api-payment
+hendrik/ui-navbar
+```
+
+---
+
+### 4️⃣ Commit and push ONLY to your own branch
+
+After making changes:
 
 ```bash
 git push origin your-branch-name
 ```
 
-### 5. Communicate before pushing large changes
-
-Inform the team via DM/WhatsApp to avoid merge conflicts.
-
-### 6. Create a Pull Request (PR) → Wait for Leader approval
-
-- Open a PR from your branch → `development`
-- Wait for the Leader to review and approve
-- Once approved, you can continue working on other features
+🚫 **Never push directly to `development` or `main`.**
 
 ---
 
-## 🛡️ Recommended Additional Rules
+### 5️⃣ Create a Pull Request (PR)
 
-### Use clear and consistent commit messages
+- Open a Pull Request **from your branch → `development`**
+- Assign the Leader / Reviewer
+- Wait for approval before merging
 
-    feat: add login feature
-    fix: fix navbar bug
-    refactor: clean up folder structure
-    docs: update README
-    chore: update dependencies
+💡 All merges to `development` **must happen via Pull Request**, not local merge.
 
-### Never push directly to `main` or `development`
+---
 
-All changes must go through a Pull Request.
+### 6️⃣ Communicate before large changes
 
-### Always pull before starting work
+If you plan to:
 
-```bash
-git pull origin development
+- modify shared config files (`package.json`, `lock files`, env, etc.)
+- refactor folders
+- introduce breaking changes
+
+👉 **Notify the team first** (DM / WhatsApp).
+
+---
+
+## 🛡️ Mandatory Rules
+
+### ✅ Use clear and consistent commit messages
+
+```
+feat: add login feature
+fix: fix navbar overlap issue
+refactor: restructure service layer
+docs: update README
+chore: update dependencies
 ```
 
-### Avoid large commits
+---
 
-Make smaller, meaningful commits that are easier to review.
+### ❌ Never push directly to protected branches
 
-### Test before pushing
+- `main`
+- `development`
 
-Ensure the application runs without errors before creating a PR.
-
-### Conflicts are normal
-
-If a conflict occurs: - Stay calm\
-
-- Communicate with the team\
-- Resolve it carefully
+These branches are **protected** and accept changes only via PR.
 
 ---
 
-## ✔️ Need help setting up the repository?
+### 🔁 Always rebase before continuing work
 
-Just ask:\
-**"Teach me how to set up the repo step by step"**\
-and I'll guide you through everything --- branching strategy, GitHub
-protection rules, PR workflow, and more.
+If someone else merges to `development` while you are working:
+
+```bash
+git checkout development
+git pull
+git checkout your-branch-name
+git rebase development
+```
+
+This keeps history clean and prevents large conflicts.
+
+---
+
+### 🧩 Keep commits small and meaningful
+
+- Avoid dumping many changes into one commit
+- Smaller commits are easier to review and revert
+
+---
+
+### 🧪 Test before pushing
+
+Before creating a PR:
+
+- Ensure the app runs correctly
+- Fix lint/build errors
+
+---
+
+### ⚠️ Conflicts can happen — handle them properly
+
+If a conflict occurs:
+
+- Stay calm
+- Do **not** force-push blindly
+- Communicate with the team
+- Resolve conflicts carefully
+
+---
+
+## ✔️ Need help?
+
+Ask anytime:
+
+> **"Teach me how to set up the repo step by step"**
+
+I can guide you through:
+
+- Branching strategy
+- GitHub protection rules
+- Pull Request workflow
+- Conflict resolution best practices
+
+---
+
+✨ _Following this guide is mandatory for all contributors._
