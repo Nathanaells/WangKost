@@ -24,10 +24,8 @@ export async function POST(req: NextRequest) {
       address: body.address,
     });
 
-    // Duplicate Check
-    const hostel = await Hostel.where("name", body.name)
-      .where("ownerId", body.ownerId)
-      .first();
+        // Duplicate Check
+        const hostel = await Hostel.where("name", body.name).first();
 
     // * Cara Pakai where >
     /*

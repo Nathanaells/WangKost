@@ -1,0 +1,1 @@
+// Looksup tenants from corresponding owner ID
