@@ -1,11 +1,10 @@
 "use client"
 import { useState } from 'react';
-import { showSuccessToast } from '@/utils/toast';
-import { validateFormFields, displayError, ValidationError, handleAsyncOperation } from '@/utils/errorHandler';
+import { showSuccessToast, showErrorToast, showValidationErrors } from '@/components/toast';
 
 export default function Login() {
   const [formData, setFormData] = useState({
-    email: '',
+    phoneNumber: '',
     password: ''
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -22,49 +21,57 @@ export default function Login() {
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
     
-    
-    try {
-      validateFormFields(formData, {
-        email: true,
-        password: true
-      });
-      return newErrors; 
-    } catch (error: any) {
-      return error.errors || {};
+    if (!formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = 'No. HP wajib diisi';
+    } else if (!/^[0-9+\-\s()]+$/.test(formData.phoneNumber)) {
+      newErrors.phoneNumber = 'Format nomor HP tidak valid';
     }
+    
+    if (!formData.password.trim()) {
+      newErrors.password = 'Password wajib diisi';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password minimal 6 karakter';
+    }
+    
+    return newErrors;
   };
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      
+      showValidationErrors(validationErrors);
+      return;
+    }
     
-    await handleAsyncOperation(
-      async () => {
-       
-        validateFormFields(formData, {
-          email: true,
-          password: true
-        });
+    try {
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-        
-        return { message: 'Login successful' };
-      },
-      (result) => {
-       
-        console.log('Form submitted:', formData);
+      const data = await response.json();
+
+      if (response.ok) {
         showSuccessToast('Login berhasil! Selamat datang kembali!');
+        setFormData({
+          phoneNumber: '',
+          password: ''
+        });
         setErrors({});
-      },
-      (error) => {
-        
-        displayError(error);
-        
-       
-        if (error instanceof ValidationError) {
-          setErrors(error.errors);
-        }
+      } else {
+        showErrorToast(data.message || 'Terjadi kesalahan saat login');
       }
-    );
+    } catch (error) {
+      console.error('Error:', error);
+      showErrorToast('Terjadi kesalahan saat login');
+    }
   };
 
   return (
@@ -83,27 +90,27 @@ export default function Login() {
 
           <div className="space-y-5">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email
+              <label htmlFor="phoneNumber" className="block text-sm font-medium text-black mb-2">
+                No. HP
               </label>
               <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
+                type="tel"
+                id="phoneNumber"
+                name="phoneNumber"
+                value={formData.phoneNumber}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 rounded-lg border ${
-                  errors.email ? 'border-red-500' : 'border-gray-300'
+                className={`text-black w-full px-4 py-3 rounded-lg border ${
+                  errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
                 } focus:ring-2 focus:ring-opacity-50 outline-none transition`}
-                placeholder="contoh@email.com"
+                placeholder="08123456789"
               />
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              {errors.phoneNumber && (
+                <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
               )}
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-black mb-2">
                 Password
               </label>
               <div className="relative">
@@ -113,7 +120,7 @@ export default function Login() {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 rounded-lg border ${
+                  className={`text-black w-full px-4 py-3 rounded-lg border ${
                     errors.password ? 'border-red-500' : 'border-gray-300'
                   } focus:ring-2 focus:ring-opacity-50 outline-none transition pr-12`}
                   placeholder="Masukkan password"
