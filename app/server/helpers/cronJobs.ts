@@ -37,12 +37,16 @@ export function startInvoiceGenerationCron() {
 
           // Check if we're 7 days before next payment
           const daysUntilPayment = Math.ceil(
-            (nextPaymentDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+            (nextPaymentDate.getTime() - today.getTime()) /
+              (1000 * 60 * 60 * 24)
           );
 
           if (daysUntilPayment === 7) {
             // Check if invoice already generated for this period
-            const existingTransaction = await Transaction.where("rentId", rent._id)
+            const existingTransaction = await Transaction.where(
+              "rentId",
+              rent._id
+            )
               .where("dueDate", nextPaymentDate)
               .first();
 
@@ -58,7 +62,10 @@ export function startInvoiceGenerationCron() {
 
             // Get additionals
             const additionalIds = rent.additionals || [];
-            const additionals = await Additional.whereIn("_id", additionalIds).get();
+            const additionals = await Additional.whereIn(
+              "_id",
+              additionalIds
+            ).get();
 
             // Generate invoice number
             const invoiceNumber = `INV-${Date.now()}-${rent._id}`;

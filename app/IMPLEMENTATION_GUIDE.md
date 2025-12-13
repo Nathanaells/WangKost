@@ -1,6 +1,7 @@
 # 🏠 WangKost - Complete Implementation Guide
 
 ## 📋 Table of Contents
+
 1. [Flow Overview](#flow-overview)
 2. [API Endpoints](#api-endpoints)
 3. [Setup & Configuration](#setup--configuration)
@@ -12,6 +13,7 @@
 ## 🔄 Flow Overview
 
 ### 1. Admin Adds Tenant to Room
+
 ```
 Admin → Select Hostel → Select Room → Add Tenant
   ↓
@@ -23,6 +25,7 @@ Automatically creates:
 ```
 
 ### 2. Automated Invoice Generation
+
 ```
 Cron Job (runs daily at midnight)
   ↓
@@ -41,6 +44,7 @@ n8n sends WhatsApp message with:
 ```
 
 ### 3. Payment Flow
+
 ```
 Tenant receives WhatsApp
   ↓
@@ -58,10 +62,12 @@ Transaction status updated to PAID
 ## 🛠️ API Endpoints
 
 ### Auth
+
 - `POST /api/auth/register` - Register admin
 - `POST /api/auth/login` - Login admin
 
 ### Hostels
+
 - `GET /api/hostels` - Get all hostels
 - `POST /api/hostels` - Create hostel
 - `GET /api/hostels/[hostelId]` - Get hostel details
@@ -69,6 +75,7 @@ Transaction status updated to PAID
 - `DELETE /api/hostels/[hostelId]` - Delete hostel
 
 ### Rooms
+
 - `GET /api/hostels/[hostelId]/rooms` - Get all rooms in hostel
 - `POST /api/hostels/[hostelId]/rooms` - Create room
 - `GET /api/hostels/[hostelId]/rooms/[roomId]` - Get room details
@@ -76,17 +83,20 @@ Transaction status updated to PAID
 - `DELETE /api/hostels/[hostelId]/rooms/[roomId]` - Delete room
 
 ### **⭐ Add Tenant to Room (Main Feature)**
+
 - `POST /api/hostels/[hostelId]/rooms/[roomId]/add-tenant`
-  
+
   **Body:**
+
   ```json
   {
     "tenantId": "ObjectId",
     "joinAt": "2025-01-01" // optional, defaults to today
   }
   ```
-  
+
   **Response:**
+
   ```json
   {
     "message": "Tenant added to room successfully",
@@ -99,6 +109,7 @@ Transaction status updated to PAID
   ```
 
 ### Tenants
+
 - `GET /api/tenants` - Get all tenants
 - `POST /api/tenants` - Create tenant
 - `GET /api/tenants/[tenantId]` - Get tenant details
@@ -106,28 +117,33 @@ Transaction status updated to PAID
 - `DELETE /api/tenants/[tenantId]` - Delete tenant
 
 ### Rents
+
 - `GET /api/rents` - Get all rents
 - `POST /api/rents` - Create rent manually (not recommended, use add-tenant instead)
 - `GET /api/rents/[rentId]` - Get rent details
 - `PATCH /api/rents/[rentId]` - Update rent (e.g., set leaveAt)
 
 ### Additionals
+
 - `GET /api/additionals` - Get all additionals
 - `POST /api/additionals` - Create additional
 - `PATCH /api/additionals/[id]` - Update additional
 - `DELETE /api/additionals/[id]` - Delete additional
 
 ### **⭐ Invoice Generation**
+
 - `POST /api/invoices/generate`
-  
+
   **Body:**
+
   ```json
   {
     "rentId": "ObjectId"
   }
   ```
-  
+
   **Response:**
+
   ```json
   {
     "message": "Invoice generated successfully",
@@ -143,15 +159,18 @@ Transaction status updated to PAID
   ```
 
 ### Transactions
+
 - `GET /api/transactions` - Get all transactions
 - `GET /api/transactions/[transactionId]` - Get transaction details
 
 ### **⭐ Payment Webhook (Midtrans)**
+
 - `POST /api/payment/webhook` - Handle Midtrans payment notification
-  
+
   This endpoint is called automatically by Midtrans when payment status changes.
 
 ### **⭐ Cron Job**
+
 - `GET /api/cron/init` - Initialize cron jobs (call once when server starts)
 
 ---
@@ -195,6 +214,7 @@ curl http://localhost:3000/api/cron/init
 ```
 
 Or add to your deployment script:
+
 ```bash
 npm run build
 npm start &
@@ -209,10 +229,12 @@ curl http://localhost:3000/api/cron/init
 ### Create n8n Workflow for WhatsApp Notification
 
 1. **Webhook Node** (Trigger)
+
    - Method: POST
    - Path: `/webhook/whatsapp-invoice`
 
 2. **Function Node** (Process Data)
+
    ```javascript
    const phoneNumber = $input.item.json.phoneNumber;
    const tenantName = $input.item.json.tenantName;
@@ -223,21 +245,24 @@ curl http://localhost:3000/api/cron/init
    const amount = $input.item.json.amount;
 
    // Format phone number (remove leading 0, add 62)
-   const formattedPhone = phoneNumber.startsWith('0') 
-     ? '62' + phoneNumber.slice(1) 
+   const formattedPhone = phoneNumber.startsWith("0")
+     ? "62" + phoneNumber.slice(1)
      : phoneNumber;
 
-   const message = `Halo ${tenantName},\n\nIni adalah pengingat pembayaran kost Anda:\n\n📄 Invoice: ${invoiceNumber}\n💰 Jumlah: Rp ${amount.toLocaleString('id-ID')}\n📅 Jatuh Tempo: ${dueDate}\n\n🔗 Link Pembayaran:\n${paymentUrl}\n\nMohon segera lakukan pembayaran sebelum tanggal jatuh tempo.\n\nTerima kasih!`;
+   const message = `Halo ${tenantName},\n\nIni adalah pengingat pembayaran kost Anda:\n\n📄 Invoice: ${invoiceNumber}\n💰 Jumlah: Rp ${amount.toLocaleString(
+     "id-ID"
+   )}\n📅 Jatuh Tempo: ${dueDate}\n\n🔗 Link Pembayaran:\n${paymentUrl}\n\nMohon segera lakukan pembayaran sebelum tanggal jatuh tempo.\n\nTerima kasih!`;
 
    return {
      phoneNumber: formattedPhone,
      message: message,
      pdfBase64: pdfBase64,
-     fileName: `Invoice_${invoiceNumber}.pdf`
+     fileName: `Invoice_${invoiceNumber}.pdf`,
    };
    ```
 
 3. **WhatsApp Node** (Send Message)
+
    - Use your WhatsApp Business API or service
    - Send message with PDF attachment
    - Common services:
@@ -266,10 +291,12 @@ curl http://localhost:3000/api/cron/init
 ## ⏰ Cron Job Details
 
 ### Schedule
+
 - **Frequency:** Daily at 00:00 (midnight)
 - **Pattern:** `0 0 * * *`
 
 ### What it does:
+
 1. Fetches all active rents (`leaveAt` is null)
 2. For each rent:
    - Calculates next payment date (1 month from joinAt)
@@ -281,6 +308,7 @@ curl http://localhost:3000/api/cron/init
      - Sends to n8n webhook
 
 ### Manual Trigger
+
 If you need to test or manually trigger invoice generation:
 
 ```bash
@@ -297,6 +325,7 @@ POST /api/invoices/generate
 ### Complete Flow: Adding Tenant
 
 1. **Create Hostel**
+
 ```bash
 POST /api/hostels
 {
@@ -308,6 +337,7 @@ POST /api/hostels
 ```
 
 2. **Add Room to Hostel**
+
 ```bash
 POST /api/hostels/[hostelId]/rooms
 {
@@ -316,6 +346,7 @@ POST /api/hostels/[hostelId]/rooms
 ```
 
 3. **Create Tenant**
+
 ```bash
 POST /api/tenants
 {
@@ -328,6 +359,7 @@ POST /api/tenants
 ```
 
 4. **Add Tenant to Room** (⭐ Main Action)
+
 ```bash
 POST /api/hostels/[hostelId]/rooms/[roomId]/add-tenant
 {
@@ -337,6 +369,7 @@ POST /api/hostels/[hostelId]/rooms/[roomId]/add-tenant
 ```
 
 This automatically:
+
 - Creates rent record
 - Adds all additionals to rent
 - Updates room's tenant list
@@ -353,6 +386,7 @@ This automatically:
 ## 📝 Notes
 
 ### PDF Invoice Features
+
 - ✅ Hostel & tenant information
 - ✅ Itemized costs (room + additionals)
 - ✅ Total amount
@@ -361,11 +395,13 @@ This automatically:
 - ✅ Payment link button
 
 ### Midtrans Integration
+
 - Supports all Midtrans payment methods
 - Automatic status updates via webhook
 - Transaction history tracking
 
 ### WhatsApp Notification
+
 - Sent 7 days before due date
 - Includes PDF invoice
 - Includes payment link
@@ -390,21 +426,25 @@ This automatically:
 ## 🆘 Troubleshooting
 
 ### Cron Job Not Running
+
 - Check if `/api/cron/init` was called
 - Check server logs
 - Verify server timezone
 
 ### PDF Not Generated
+
 - Check Puppeteer installation
 - Verify barcode generation
 - Check temp directory permissions
 
 ### WhatsApp Not Sent
+
 - Verify n8n webhook URL
 - Check n8n workflow logs
 - Verify WhatsApp API credentials
 
 ### Payment Not Updated
+
 - Verify Midtrans webhook URL in dashboard
 - Check webhook signature
 - Monitor `/api/payment/webhook` logs

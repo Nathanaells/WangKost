@@ -65,7 +65,7 @@ export async function POST(req: NextRequest, props: IProps) {
 
     // 6. Create Rent record
     const joinAt = body.joinAt ? new Date(body.joinAt) : new Date();
-    
+
     const newRent = await Rent.create({
       price: totalPrice,
       roomId: roomObjectId,
