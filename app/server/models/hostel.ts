@@ -7,7 +7,6 @@ import {
 import Room from "./Room";
 import Owner from "./Owner";
 import { ObjectId } from "mongodb";
-import z from "zod";
 
 interface IHostel extends IMongoloquentSchema, IMongoloquentTimestamps {
   name: string;
@@ -16,11 +15,6 @@ interface IHostel extends IMongoloquentSchema, IMongoloquentTimestamps {
   description?: string;
   ownerId: ObjectId;
 }
-
-export const hostelCreateSchema = z.object({
-  name: z.string().min(3, "Name is required"),
-  address: z.string().min(6, "Address is required"),
-});
 
 export default class Hostel extends Model<IHostel> {
   public static $schema: IHostel;

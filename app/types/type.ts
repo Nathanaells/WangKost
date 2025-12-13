@@ -1,23 +1,14 @@
 import { ObjectId } from "mongodb";
+import {
+  Model,
+  IMongoloquentSchema,
+  IMongoloquentTimestamps,
+} from "mongoloquent";
 
 export enum TransactionStatus {
-  paid = "PAID",
-  unpaid = "UNPAID",
-  pending = "PENDING",
-}
-
-export interface IJWTPayload {
-  userId: ObjectId;
-  phoneNumber: string;
-  email: string;
-}
-
-export interface IHostel {
-  name: string;
-  address: string;
-  maxRoom?: number;
-  description?: string;
-  ownerId: ObjectId;
+  Unpaid = "UNPAID",
+  Paid = "PAID",
+  Pendng = "PENDING",
 }
 
 export interface IOwner {
@@ -31,6 +22,7 @@ export interface IRoom {
   fixedCost: number;
   isAvailable: boolean;
   hostelId: ObjectId;
+  tenants: ITenant[];
 }
 
 export interface ITenant {
@@ -39,6 +31,7 @@ export interface ITenant {
   birthday: Date;
   phoneNumber: string;
   isActive: boolean;
+  rents: IRent[];
 }
 
 export interface IRent {
