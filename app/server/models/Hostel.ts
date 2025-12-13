@@ -3,6 +3,7 @@ import {
   IMongoloquentSchema,
   IMongoloquentTimestamps,
 } from "mongoloquent";
+
 import Room from "./Room";
 import Owner from "./Owner";
 import { ObjectId } from "mongodb";

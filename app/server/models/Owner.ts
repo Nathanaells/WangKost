@@ -3,9 +3,9 @@ import {
   IMongoloquentSchema,
   IMongoloquentTimestamps,
 } from "mongoloquent";
-import Hostel from "./hostel";
 import z from "zod";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
+import Hostel from "./Hostel";
 
 interface IOwner extends IMongoloquentSchema, IMongoloquentTimestamps {
   name: string;
