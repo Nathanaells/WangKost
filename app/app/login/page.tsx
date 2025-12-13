@@ -1,11 +1,6 @@
 "use client"
 import { useState } from 'react';
-<<<<<<< HEAD
 import { showSuccessToast, showErrorToast, showValidationErrors } from '@/components/toast';
-=======
-import { showSuccessToast } from '@/utils/toast';
-import { validateFormFields, displayError, ValidationError, handleAsyncOperation } from '@/utils/errorHandler';
->>>>>>> 8e5e784 (:toast register dan login)
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -26,7 +21,6 @@ export default function Login() {
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
     
-<<<<<<< HEAD
     if (!formData.phoneNumber.trim()) {
       newErrors.phoneNumber = 'No. HP wajib diisi';
     } else if (!/^[0-9+\-\s()]+$/.test(formData.phoneNumber)) {
@@ -37,24 +31,12 @@ export default function Login() {
       newErrors.password = 'Password wajib diisi';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password minimal 6 karakter';
-=======
-    
-    try {
-      validateFormFields(formData, {
-        email: true,
-        password: true
-      });
-      return newErrors; 
-    } catch (error: any) {
-      return error.errors || {};
->>>>>>> 8e5e784 (:toast register dan login)
     }
   };
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     
-<<<<<<< HEAD
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -88,36 +70,6 @@ export default function Login() {
       console.error('Error:', error);
       showErrorToast('Terjadi kesalahan saat login');
     }
-=======
-    
-    await handleAsyncOperation(
-      async () => {
-       
-        validateFormFields(formData, {
-          email: true,
-          password: true
-        });
-
-        
-        return { message: 'Login successful' };
-      },
-      (result) => {
-       
-        console.log('Form submitted:', formData);
-        showSuccessToast('Login berhasil! Selamat datang kembali!');
-        setErrors({});
-      },
-      (error) => {
-        
-        displayError(error);
-        
-       
-        if (error instanceof ValidationError) {
-          setErrors(error.errors);
-        }
-      }
-    );
->>>>>>> 8e5e784 (:toast register dan login)
   };
 
   return (
