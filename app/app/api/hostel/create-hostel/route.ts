@@ -25,10 +25,8 @@ export async function POST(req: NextRequest) {
       address: body.address,
     });
 
-    // Duplicate Check
-    const hostel = await Hostel.where("name", body.name)
-      .where("ownerId", body.ownerId)
-      .first();
+        // Duplicate Check
+        const hostel = await Hostel.where("name", body.name).first();
 
     // * Cara Pakai where >
     /*
@@ -41,6 +39,7 @@ export async function POST(req: NextRequest) {
       throw new BadRequest("Hostel already exists");
     }
 
+    // Create Hostel
     await Hostel.create({
       name: body.name,
       description: body.description,
