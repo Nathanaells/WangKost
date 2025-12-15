@@ -8,6 +8,7 @@ import { IHostel } from "@/types/type";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 
+// GET HOSTELS (for owner)
 export async function GET(req: NextRequest) {
   try {
     // Validations
@@ -26,6 +27,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
+// CREATE HOSTEL
 export async function POST(req: NextRequest) {
   try {
     const body: IHostel = await req.json();
@@ -40,16 +42,20 @@ export async function POST(req: NextRequest) {
       address: body.address,
     });
 
-    // Duplicate Check
-    const hostel = await Hostel.where("name", body.name).first();
+    // Slug Creator
+    const newSlug = body.name.toLowerCase().split(" ").join("-");
 
+    const hostel = await Hostel.where("name", body.name)
+      .where("slug", newSlug)
+      .first();
+    // Duplicate Check
     if (hostel) {
       throw new BadRequest("Hostel already exists");
     }
-
     // Create Hostel
     await Hostel.create({
       name: body.name,
+      slug: newSlug,
       description: body.description,
       address: body.address,
       maxRoom: body.maxRoom,
