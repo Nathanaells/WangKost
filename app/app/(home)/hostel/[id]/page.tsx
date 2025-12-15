@@ -23,8 +23,8 @@ interface ITenant {
 
 interface IRoom {
     _id: string;
-    roomNumber: string;
-    price: number;
+    roomNumber?: string;
+    fixedCost: number;
     isAvailable: boolean;
     tenant: ITenant | null;
 }
@@ -109,34 +109,141 @@ export default function HostelDetailPage() {
         );
     }
 
-    const occupiedRooms = hostel.rooms.filter((r) => !r.isAvailable).length;
-    const occupancyRate = Math.round((occupiedRooms / hostel.rooms.length) * 100);
+    const rooms = hostel.rooms || [];
+    const occupiedRooms = rooms.filter((r) => !r.isAvailable).length;
+    const occupancyRate = rooms.length > 0 ? Math.round((occupiedRooms / rooms.length) * 100) : 0;
 
     const handleAddTenant = (room: IRoom) => {
         setSelectedRoom(room);
         setShowAddTenantModal(true);
     };
 
-    const handleSubmitTenant = (e: React.FormEvent) => {
+    const handleSubmitTenant = async (e: React.FormEvent) => {
         e.preventDefault();
-        // In real app, this would call API
-        console.log('Adding tenant:', formData, 'to room:', selectedRoom?.roomNumber);
-        setShowAddTenantModal(false);
-        setFormData({ name: '', email: '', phoneNumber: '', joinDate: new Date().toISOString().split('T')[0] });
-        // Show success message
-        alert(`Tenant ${formData.name} berhasil ditambahkan ke kamar ${selectedRoom?.roomNumber}`);
+
+        if (!selectedRoom) return;
+
+        try {
+            // Step 1: Create tenant
+            const tenantResponse = await fetch(`${url}/api/tenants`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: formData.name,
+                    email: formData.email,
+                    phoneNumber: formData.phoneNumber,
+                    birthday: formData.joinDate,
+                    isActive: true,
+                }),
+            });
+
+            const tenantData = await tenantResponse.json();
+
+            if (!tenantResponse.ok) {
+                throw new Error(tenantData.message || 'Failed to create tenant');
+            }
+
+            // Step 2: Get the created tenant to get their ID
+            const tenantsListResponse = await fetch(`${url}/api/tenants`);
+            const tenantsList = await tenantsListResponse.json();
+            const createdTenant = tenantsList.find((t: string) => t.email === formData.email);
+
+            if (!createdTenant) {
+                throw new Error('Failed to retrieve created tenant');
+            }
+
+            // Step 3: Create rent relationship
+            const rentResponse = await fetch(`${url}/api/rents`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    price: selectedRoom.fixedCost,
+                    roomId: selectedRoom._id,
+                    tenantId: createdTenant._id,
+                    joinAt: formData.joinDate,
+                }),
+            });
+
+            const rentData = await rentResponse.json();
+
+            if (!rentResponse.ok) {
+                throw new Error(rentData.message || 'Failed to create rent');
+            }
+
+            // Step 4: Update room availability to false
+            const roomUpdateResponse = await fetch(`${url}/api/hostels/${hostelId}/rooms/${selectedRoom._id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    isAvailable: false,
+                }),
+            });
+
+            if (!roomUpdateResponse.ok) {
+                console.error('Failed to update room availability');
+            }
+
+            toast.success('Tenant added successfully!');
+            setShowAddTenantModal(false);
+            setFormData({ name: '', email: '', phoneNumber: '', joinDate: new Date().toISOString().split('T')[0] });
+
+            // Refresh hostel data
+            const hostelResponse = await fetch(`${url}/api/hostels/${hostelId}`);
+            if (hostelResponse.ok) {
+                const updatedHostel = await hostelResponse.json();
+                setHostel(updatedHostel);
+            }
+        } catch (error: unknown) {
+            console.error(error);
+            toast.error(error.message || 'Failed to add tenant');
+        }
     };
 
     const handleAddRoom = () => {
         setShowAddRoomModal(true);
     };
 
-    const handleSubmitRoom = (e: React.FormEvent) => {
+    const handleSubmitRoom = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Adding room:', roomFormData);
-        setShowAddRoomModal(false);
-        setRoomFormData({ roomNumber: '', price: '' });
-        alert(`Room ${roomFormData.roomNumber} berhasil ditambahkan`);
+
+        try {
+            const response = await fetch(`${url}/api/hostels/${hostelId}/rooms`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    roomNumber: roomFormData.roomNumber,
+                    fixedCost: parseInt(roomFormData.price) || 0,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to add room');
+            }
+
+            toast.success('Room added successfully!');
+            setShowAddRoomModal(false);
+            setRoomFormData({ roomNumber: '', price: '' });
+
+            // Refresh hostel data
+            const hostelResponse = await fetch(`${url}/api/hostels/${hostelId}`);
+            if (hostelResponse.ok) {
+                const updatedHostel = await hostelResponse.json();
+                setHostel(updatedHostel);
+            }
+        } catch (error: unknown) {
+            console.error(error);
+            toast.error(error.message || 'Failed to add room');
+        }
     };
 
     const handleRoomClick = (room: IRoom) => {
@@ -183,7 +290,7 @@ export default function HostelDetailPage() {
                             <div className="text-sm text-gray-500">Occupancy Rate</div>
                             <div className="text-3xl font-bold text-blue-600">{occupancyRate}%</div>
                             <div className="text-sm text-gray-500">
-                                {occupiedRooms}/{hostel.rooms.length} rooms
+                                {occupiedRooms}/{rooms.length} rooms
                             </div>
                         </div>
                     </div>
@@ -203,19 +310,19 @@ export default function HostelDetailPage() {
                         </button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {hostel.rooms.map((room) => (
+                        {rooms.map((room) => (
                             <div
                                 key={room._id}
                                 onClick={() => handleRoomClick(room)}
                                 className={`border-2 rounded-lg p-4 ${
                                     room.isAvailable
                                         ? 'border-green-200 bg-green-50'
-                                        : 'border-blue-200 bg-blue-50 cursor-pointer hover:shadow-md'
-                                } transition-all`}>
+                                        : 'border-blue-200 bg-blue-50 cursor-pointer hover:shadow-md transition-shadow'
+                                }`}>
                                 <div className="flex justify-between items-start mb-3">
                                     <div>
-                                        <h3 className="text-lg font-semibold text-gray-900">Room {room.roomNumber}</h3>
-                                        <p className="text-sm text-gray-600">Rp {room.price.toLocaleString('id-ID')}/month</p>
+                                        <h3 className="text-lg font-semibold text-gray-900">Room {room.roomNumber || 'N/A'}</h3>
+                                        <p className="text-sm text-gray-600">Rp {room.fixedCost?.toLocaleString('id-ID') || 0}/month</p>
                                     </div>
                                     <span
                                         className={`px-3 py-1 text-xs font-medium rounded-full ${
@@ -225,7 +332,7 @@ export default function HostelDetailPage() {
                                     </span>
                                 </div>
 
-                                {room.tenant ? (
+                                {!room.isAvailable && room.tenant ? (
                                     <div className="mt-3 pt-3 border-t border-gray-200">
                                         <p className="text-sm font-medium text-gray-900">{room.tenant.name}</p>
                                         <p className="text-xs text-gray-600">{room.tenant.email}</p>
@@ -234,7 +341,7 @@ export default function HostelDetailPage() {
                                             Since: {new Date(room.tenant.joinDate).toLocaleDateString('id-ID')}
                                         </p>
                                     </div>
-                                ) : (
+                                ) : room.isAvailable ? (
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -243,6 +350,10 @@ export default function HostelDetailPage() {
                                         className="mt-3 w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 text-sm font-medium">
                                         + Add Tenant
                                     </button>
+                                ) : (
+                                    <div className="mt-3 pt-3 border-t border-gray-200 text-center text-sm text-gray-500">
+                                        No tenant data available
+                                    </div>
                                 )}
                             </div>
                         ))}
