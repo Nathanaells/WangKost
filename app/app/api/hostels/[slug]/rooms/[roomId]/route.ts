@@ -1,5 +1,6 @@
 import { NotFoundError } from "@/server/errorHandler/classError";
 import customError from "@/server/errorHandler/customError";
+import Rent from "@/server/models/Rent";
 import Room from "@/server/models/Room";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
@@ -8,14 +9,26 @@ interface IProps {
   params: Promise<{ roomId: string }>;
 }
 
-// GET single room
+// GET single room with tenants
 export async function GET(req: NextRequest, props: IProps) {
   try {
     const { roomId } = await props.params;
     const roomObjectId = new ObjectId(roomId);
 
+    const rent = await Rent.where("roomId", roomObjectId).first();
+    console.log(200,"GETTING RENT",rent)
     const room = await Room.where("_id", roomObjectId).first();
+
+    // Validation check
     if (!room) throw new NotFoundError("Room not found");
+
+    
+    if (!rent) {
+      return NextResponse.json(room)
+    }
+    // If rent returns empty then we should just give back room data.
+    // Otherwise, return with list of tenants.
+
 
     return NextResponse.json(room);
   } catch (error: unknown) {
