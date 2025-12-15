@@ -9,6 +9,7 @@ import Tenant, { tenantCreateSchema } from "@/server/models/Tenant";
 import { ICreateTenant, ITenant } from "@/types/type";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
+import { DB } from "mongoloquent";
 
 export async function GET(req: NextRequest) {
   try {
@@ -25,9 +26,6 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-
-
-    
     const body: ICreateTenant = await req.json();
 
     const id = req.headers.get("x-owner-id");
@@ -40,55 +38,60 @@ export async function POST(req: NextRequest) {
       phoneNumber: body.phoneNumber,
     });
 
-    const tenant = await Tenant.where("email", body.email).first();
+    await DB.transaction(async (session) => {
+      const tenant = await Tenant.where("email", body.email).first();
 
-    if (tenant) {
-      throw new BadRequest("Tenant already exists");
-    }
-
-    const newTenant = await Tenant.create({
-      name: body.name,
-      email: body.email,
-      birthday: new Date(body.birthday),
-      phoneNumber: body.phoneNumber,
-      isActive: body.isActive ?? true,
-    });
-
-    // Sesssion!
-    
-    const room = await Room.where("_id", body.roomId).first();
-
-    if (!room) {
-      throw new BadRequest("Room not found");
-    }
-
-    if (!room.isAvailable) {
-      throw new BadRequest("Room is not available");
-    }
-
-    const roomId = new ObjectId(room._id);
-
-    const createdRent = await Rent.create({
-      roomId,
-      tenantId: newTenant._id,
-      price: room.fixedCost as number,
-      joinAt: new Date(),
-    });
-
-    if (body.additionalIds && body.additionalIds.length > 0) {
-      const rentInstance = await Rent.find(createdRent._id);
-
-      if (rentInstance) {
-        const additionalObjectIds = body.additionalIds.map(
-          (id) => new ObjectId(id)
-        );
-        await rentInstance.additionals().attach(additionalObjectIds);
+      if (tenant) {
+        throw new BadRequest("Tenant already exists");
       }
-    }
 
-    // Update room availability to false (room is now occupied)
-    await Room.where("_id", body.roomId).update({
-      isAvailable: false,
+      const room = await Room.where("_id", body.roomId).first();
+
+      if (!room) {
+        throw new BadRequest("Room not found");
+      }
+
+      if (!room.isAvailable) {
+        throw new BadRequest("Room is not available");
+      }
+
+      const roomId = new ObjectId(room._id);
+
+      const newTenant = (await DB.collection("tenants").create(
+        {
+          name: body.name,
+          email: body.email,
+          birthday: new Date(body.birthday),
+          phoneNumber: body.phoneNumber,
+          isActive: body.isActive ?? true,
+        },
+        { session }
+      )) as Tenant;
+
+      const createdRent = (await DB.collection("rents").create(
+        {
+          roomId,
+          tenantId: newTenant._id,
+          price: room.fixedCost as number,
+          joinAt: new Date(),
+        },
+        { session }
+      )) as Rent;
+
+      if (body.additionalIds && body.additionalIds.length > 0) {
+        const rentInstance = await Rent.find(createdRent._id);
+
+        if (rentInstance) {
+          const additionalObjectIds = body.additionalIds.map(
+            (id) => new ObjectId(id)
+          );
+          await rentInstance.additionals().attach(additionalObjectIds);
+        }
+      }
+
+      await Room.where("_id", body.roomId).update({
+        isAvailable: false,
+      });
     });
 
     return NextResponse.json({ message: "Tenant created" }, { status: 201 });
