@@ -50,6 +50,8 @@ export interface IRent {
   price: number;
   roomId: ObjectId;
   tenantId: ObjectId;
+  leaveAt?: Date;
+  joinAt: Date; 
 }
 
 export interface ILogin {

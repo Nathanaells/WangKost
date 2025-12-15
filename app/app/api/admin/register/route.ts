@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       .first();
 
     if (owner) {
-      throw new BadRequest("Email or Phone Number Already used");
+      throw new BadRequest("error : Email or Phone Number Already used");
     }
 
     body.password = await hashPassword(body.password);

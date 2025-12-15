@@ -1,6 +1,9 @@
-"use client"
+'use client';
+
+import { useRouter } from 'next/navigation';
 
 interface IBuilding {
+    id?: string;
     name: string;
     type: string;
     totalRooms: number;
@@ -9,7 +12,8 @@ interface IBuilding {
     color: 'blue' | 'pink';
 }
 
-export default function BuildingCard({ name, type, totalRooms, occupancy, facilities, color }: IBuilding) {
+export default function BuildingCard({ id, name, type, totalRooms, occupancy, facilities, color }: IBuilding) {
+    const router = useRouter();
     const isBlue = color === 'blue';
     const textColor = isBlue ? 'text-blue-600' : 'text-pink-600';
     const iconColor = isBlue ? 'text-blue-600' : 'text-pink-600';
@@ -18,8 +22,9 @@ export default function BuildingCard({ name, type, totalRooms, occupancy, facili
         <div
             className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer"
             onClick={() => {
-                // Handle card click - navigate to room details
-                console.log('Card clicked:', name);
+                if (id) {
+                    router.push(`/hostel/${id}`);
+                }
             }}>
             <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
