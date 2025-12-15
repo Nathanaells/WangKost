@@ -78,17 +78,21 @@ export async function DELETE(req: NextRequest, props: IProps) {
   }
 }
 
+// ADD TENANT AND CREATE RENT AUTOMATICALLY
 export async function POST(req: NextRequest, props: IProps) {
   try {
     // Validations
     const id = req.headers.get("x-owner-id");
     if (!id) throw new UnauthorizedError();
     const _id = new ObjectId(id);
-    
-    // Get tenant data from body.
+
+    // Get roomId
     const { roomId } = await props.params;
     const roomObjectId = new ObjectId(roomId);
 
+    // Get tenant input data from body
+    const body: ITenant = await req.json();
+    
     // Attempt to find room
     const room = await Room.where("_id", roomObjectId).first();
     if (!room) throw new NotFoundError("Room not found");
@@ -96,7 +100,7 @@ export async function POST(req: NextRequest, props: IProps) {
     // Check if room is avaiable.
     if (!room?.isAvailable) throw new Error("Room is not available")
     
-    const body: ITenant = await req.json();
+
 
     // Parse and body validation
     tenantCreateSchema.parse({

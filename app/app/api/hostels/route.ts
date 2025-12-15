@@ -36,23 +36,22 @@ export async function POST(req: NextRequest) {
     if (!id) throw new UnauthorizedError();
     const _id = new ObjectId(id);
 
-    // Parse and body validation
-    hostelCreateSchema.parse({
-      name: body.name,
-      address: body.address,
-    });
-
-
-
     // Slug Creator
     const newSlug = body.name.toLowerCase().split(" ").join("-");
-    
-    // Duplicate Check
+
+        // Duplicate Check
     const hostel = await Hostel.where("name", body.name).where("slug", newSlug).first();
     
     if (hostel) {
       throw new BadRequest("Hostel already exists");
     }
+    // Parse and body validation
+    hostelCreateSchema.parse({
+      name: body.name,
+      address: body.address,
+      slug: newSlug,
+    });
+    
     // Create Hostel
     await Hostel.create({
       name: body.name,
