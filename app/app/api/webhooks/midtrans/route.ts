@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     // Verify signature (security check)
     const serverKey = process.env.MIDTRANS_SERVER_KEY;
-    
+
     if (!serverKey) {
       console.error("❌ MIDTRANS_SERVER_KEY not configured");
       return NextResponse.json(
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-    
+
     const hash = crypto
       .createHash("sha512")
       .update(`${order_id}${status_code}${gross_amount}${serverKey}`)
