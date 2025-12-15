@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     // Validations
     const id = req.headers.get("x-owner-id");
     if (!id) throw new UnauthorizedError();
-    const _id = new ObjectId(id);
+    const ownerId = new ObjectId(id);
 
     // Slug Creator
     const newSlug = body.name.toLowerCase().split(" ").join("-");
@@ -52,6 +52,17 @@ export async function POST(req: NextRequest) {
     if (hostel) {
       throw new BadRequest("Hostel already exists");
     } 
+
+   const newHostel = await Hostel.create({
+      name: body.name,
+      address: body.address,
+      slug: newSlug,
+      ownerId,
+    });
+    return NextResponse.json({
+      message: "Hostel created",
+      status: 201
+    })
   } catch (error: unknown) {
     const { message, status } = customError(error);
     return NextResponse.json({ message }, { status });

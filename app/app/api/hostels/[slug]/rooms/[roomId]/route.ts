@@ -4,7 +4,6 @@ import Rent from "@/server/models/Rent";
 import Room from "@/server/models/Room";
 import { tenantCreateSchema } from "@/server/models/Tenant";
 import { ITenant } from "@/types/type";
-import { PhoneNumber } from "libphonenumber-js";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -97,7 +96,7 @@ export async function POST(req: NextRequest, props: IProps) {
     const room = await Room.where("_id", roomObjectId).first();
     if (!room) throw new NotFoundError("Room not found");
 
-    // Check if room is avaiable.
+    // Check if room is available.
     if (!room?.isAvailable) throw new BadRequest("Room is not available")
     
 
@@ -110,7 +109,8 @@ export async function POST(req: NextRequest, props: IProps) {
       phoneNumber: body.phoneNumber,
       isActive: true
     });
-
+    //! INCOMPLETE
+    // Expected: When we POST in roomId we add tenant while simultaneously creating a new Rent.
 
   } catch (error) {
     const { message, status } = customError(error);
