@@ -19,7 +19,9 @@ export async function GET(req: NextRequest, props: IProps) {
     const { tenantId } = await props.params;
     const tenantObjectId = new ObjectId(tenantId);
 
-    const tenant = await Tenant.where("_id", tenantObjectId).first();
+    const tenant = await Tenant.where("_id", tenantObjectId)
+      .where("isActive", true)
+      .first();
     if (!tenant) throw new NotFoundError("Tenant not found");
 
     return NextResponse.json(tenant);
@@ -28,7 +30,6 @@ export async function GET(req: NextRequest, props: IProps) {
     return NextResponse.json({ message }, { status });
   }
 }
-
 
 export async function PATCH(req: NextRequest, props: IProps) {
   try {

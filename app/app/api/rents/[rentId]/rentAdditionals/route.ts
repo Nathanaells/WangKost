@@ -15,16 +15,16 @@ interface IProps {
 // GET all additionals for a rent
 export async function GET(req: NextRequest, props: IProps) {
   try {
-    const id = req.headers.get("x-owner-id");
-    if (!id) throw new UnauthorizedError();
-
     const { rentId } = await props.params;
     const rentObjectId = new ObjectId(rentId);
 
-    const rent = await Rent.where("_id", rentObjectId).get();
+    const rent = (await Rent.find(rentObjectId)) as Rent;
     if (!rent) throw new NotFoundError("Rent not found");
 
-    return NextResponse.json(rent);
+    const additionals = await rent.additionals().get();
+    console.log(additionals);
+
+    return NextResponse.json(additionals);
   } catch (error: unknown) {
     const { message, status } = customError(error);
     return NextResponse.json({ message }, { status });

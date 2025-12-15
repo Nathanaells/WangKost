@@ -1,94 +1,37 @@
+import { IRentObject } from "@/types/type";
 import cron from "node-cron";
+import Queue from "bull";
 
-export function startTestingCron() {
-  cron.schedule("* * * * *", async () => {
-    try {
-      const startTime = new Date();
-      console.log(
-        `\n⏰ [${startTime.toISOString()}] Testing Cron Job Running...`
-      );
+const rentQueue = new Queue(
+  "Rent Transcoding",
+  "redis://default:gpRDTl8PQbDP289p31aHlksWxrOz1cek@redis-15147.c292.ap-southeast-1-1.ec2.cloud.redislabs.com:15147"
+);
 
-      const API_URL = "http://localhost:3000/api/rents";
-      const OWNER_ID = "693dcfd8b69eaa40081ea1f3";
-      const JWT_TOKEN = process.env.JWT_TOKEN as string;
-      const N8N_WEBHOOK = process.env.N8N_WEBHOOK as string;
-      const WHATSAPP_NUMBER = "+6281532812020";
-      const rentResponse = await fetch(API_URL, {
-        method: "GET",
-        headers: {
-          "x-owner-id": OWNER_ID,
-          Cookie: `access_token=${JWT_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-      });
+rentQueue.process(async function (job, done) {
+  try {
+    console.log("Processing job:", job.data);
+    done();
+  } catch (error) {
+    console.error("Processing error:", error);
+    done(error as Error);
+  }
+});
 
-      if (!rentResponse.ok) {
-        throw new Error(
-          `API Error: ${rentResponse.status} ${rentResponse.statusText}`
-        );
-      }
+cron.schedule("* * * * *", async () => {
+  try {
+    const resp = await fetch("http://localhost:3000/api/rents");
 
-      const rents = await rentResponse.json();
-      const endTime = new Date();
-      const duration = endTime.getTime() - startTime.getTime();
-
-      const message =
-        `🏠 *WangKost Rent Report*\n\n` +
-        `⏰ Time: ${startTime.toLocaleString("id-ID")}\n` +
-        `📊 Total Rents: ${rents.length}\n` +
-        `⚡ API Response Time: ${duration}ms\n\n` +
-        `${
-          rents.length > 0
-            ? `📋 *Recent Rents:*\n${rents
-                .slice(0, 3)
-                .map(
-                  (rent: any, idx: number) =>
-                    `${idx + 1}. Room: ${rent.roomId}\n   Price: Rp ${
-                      rent.price?.toLocaleString("id-ID") || "N/A"
-                    }\n   Join: ${new Date(rent.joinAt).toLocaleDateString(
-                      "id-ID"
-                    )}`
-                )
-                .join("\n\n")}`
-            : "❌ No rents found"
-        }`;
-
-      const whatsappResponse = await fetch(N8N_WEBHOOK, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          phoneNumber: WHATSAPP_NUMBER,
-          message: message,
-        }),
-      });
-
-      if (!whatsappResponse.ok) {
-        throw new Error(`n8n Webhook Error: ${whatsappResponse.status}`);
-      }
-
-      const whatsappResult = await whatsappResponse.json();
-    } catch (error) {
-      try {
-        await fetch("https://wangkost.app.n8n.cloud/webhook-test/send-wa", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            phoneNumber: "+6281532812020",
-            message:
-              `❌ *WangKost Cron Job Error*\n\n` +
-              `Time: ${new Date().toLocaleString("id-ID")}\n` +
-              `Error: ${
-                error instanceof Error ? error.message : "Unknown error"
-              }`,
-          }),
-        });
-      } catch (notifError) {
-        console.error("❌ Failed to send error notification:", notifError);
-      }
+    if (!resp.ok) {
+      throw new Error("Error Fetching Data");
     }
-  });
-}
 
-startTestingCron();
+    const rents: IRentObject[] = await resp.json();
+
+    for (let i = 0; i < rents.length; i++) {
+      const rentId = `rentId${i + 1}`;
+      await rentQueue.add({ [rentId]: rents[i]._id });
+    }
+  } catch (error: unknown) {
+    console.error("Cron error:", error);
+  }
+});

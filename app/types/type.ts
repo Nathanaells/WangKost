@@ -71,6 +71,15 @@ export interface IRent {
   joinAt: Date;
 }
 
+export interface IRentObject {
+  _id: ObjectId;
+  price: number;
+  roomId: ObjectId;
+  tenantId: ObjectId;
+  leaveAt?: Date;
+  joinAt: Date;
+}
+
 export interface ILogin {
   phoneNumber: string;
   password: string;
