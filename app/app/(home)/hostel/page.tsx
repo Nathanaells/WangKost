@@ -41,28 +41,26 @@ const hardcodedHostels: IHostel[] = [
 ];
 
 async function getHostels(): Promise<IHostel[]> {
+    try {
+        const cookieStore = await cookies();
+        const token = cookieStore.get('access_token');
 
+        const response = await fetch(`${url}/api/hostels`, {
+            headers: {
+                Cookie: `access_token=${token?.value}`,
+            },
+            cache: 'no-store',
+        });
 
-  try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("access_token");
+        if (!response.ok) {
+            throw new Error('Failed to fetch hostels');
+        }
 
-    const response = await fetch(`${url}/api/hostels`, {
-      headers: {
-        Cookie: `access_token=${token?.value}`,
-      },
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch hostels");
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        return [];
     }
-
-    return await response.json();
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
 }
 
 export default async function HostelPage() {
@@ -95,11 +93,9 @@ export default async function HostelPage() {
                                 key={index}
                                 id={hostel._id}
                                 name={hostel.name}
-                                type="Hostel"
                                 totalRooms={hostel.maxRoom || 0}
                                 occupancy={0}
                                 facilities={[]}
-                                color={index % 2 === 0 ? 'blue' : 'pink'}
                             />
                         ))}
                     </div>
