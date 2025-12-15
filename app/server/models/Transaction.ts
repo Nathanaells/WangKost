@@ -10,24 +10,25 @@ import Tenant from "./Tenant";
 import Rent from "./Rent";
 
 interface ITransaction extends IMongoloquentSchema, IMongoloquentTimestamps {
+  tenantId: ObjectId;
   amount: number;
   status: TransactionStatus;
   dueDate: Date;
-  paidAt: Date;
-  midTransTransactionId: string;
-  midTransOrderId: string;
+  paidAt?: Date;
+  midTransTransactionId?: string;
+  midTransOrderId?: string;
   rentId: ObjectId;
-  tenantId: ObjectId;
 }
 
-export default class Transactions extends Model<ITransaction> {
+export default class Transaction extends Model<ITransaction> {
   public static $schema: ITransaction;
-  protected $collection: string = "owners";
+  protected $collection: string = "transactions";
 
   public tenant() {
-    this.belongsTo(Tenant);
+    return this.belongsTo(Tenant);
   }
+
   public rent() {
-    this.hasOne(Rent);
+    return this.belongsTo(Rent);
   }
 }

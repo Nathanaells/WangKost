@@ -15,7 +15,6 @@ export async function proxy(req: NextRequest) {
       "/api/tenants",
       "/api/rents",
       "/api/additionals",
-      "/api/transactions",
     ];
 
     if (path.startsWith("/api")) {
