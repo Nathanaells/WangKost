@@ -3,7 +3,7 @@ import Hostel from "@/server/models/Hostel";
 import Room from "@/server/models/Room";
 import { IRoom } from "@/types/type";
 import { NextRequest, NextResponse } from "next/server";
-import { NotFoundError } from "@/server/errorHandler/classError";
+import { BadRequest, NotFoundError } from "@/server/errorHandler/classError";
 
 interface IProps {
   params: Promise<{ slug: string }>;
@@ -37,16 +37,27 @@ export async function POST(req: NextRequest, props: IProps) {
     const { slug } = await props.params;
 
     // Get hostel by slug to retrieve hostelId
-    const hostel = await Hostel.where("slug", slug).first();
+    const hostel = await Hostel.where('slug', slug).first();
     if (!hostel) {
-      throw new NotFoundError("Hostel not found");
+      throw new NotFoundError('Hostel not found');
+    }
+
+    // Maximum Room Check
+    const hostelId = hostel._id;
+    const maxRooms = hostel.maxRoom;
+
+    if (maxRooms) {
+      const currentRoomCount = await Room.where("hostelId", hostelId).count();
+      if (currentRoomCount >= maxRooms) {
+        throw new BadRequest("Maximum room capacity reached");
+      }
     }
 
     // Create room using the hostelId from the hostel
     await Room.create({
       fixedCost: body.fixedCost,
       isAvailable: true,
-      hostelId: hostel._id,
+      hostelId,
     });
 
     return NextResponse.json(
