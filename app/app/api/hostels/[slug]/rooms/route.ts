@@ -55,13 +55,15 @@ export async function POST(req: NextRequest, props: IProps) {
 
     // Create room using the hostelId from the hostel
     await Room.create({
-      roomNumber: body.roomNumber,
       fixedCost: body.fixedCost,
       isAvailable: true,
-      hostelId: hostel._id,
+      hostelId,
     });
 
-    return NextResponse.json({ message: 'Room added successfully' }, { status: 201 });
+    return NextResponse.json(
+      { message: "Room added successfully" },
+      { status: 201 }
+    );
   } catch (error: unknown) {
     const { message, status } = customError(error);
     return NextResponse.json({ message }, { status });
@@ -69,18 +71,6 @@ export async function POST(req: NextRequest, props: IProps) {
 
 
   // Create room using the hostelId from the hostel
-  await Room.create({
-    fixedCost: body.fixedCost,
-    isAvailable: true,
-    hostelId: hostelId,
-  });
 
-  return NextResponse.json(
-    { message: "Room added successfully" },
-    { status: 201 }
-  );
-} catch (error: unknown) {
-  const { message, status } = customError(error);
-  return NextResponse.json({ message }, { status });
-}
+
 }
