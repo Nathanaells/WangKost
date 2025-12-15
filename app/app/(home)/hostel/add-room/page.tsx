@@ -13,7 +13,7 @@ async function createHostel(formData: {
   maxRoom: number;
 }) {
   try {
-    const response = await fetch(`${url}/api/hostel/create-hostel`, {
+    const response = await fetch(`${url}/api/hostels`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
