@@ -7,6 +7,7 @@ import url from "./constant";
 
 interface IBuilding {
   id?: string;
+  slug?: string;
   name: string;
   totalRooms: number;
   occupancy: number;
@@ -19,16 +20,14 @@ export default function BuildingCard(props: IBuilding) {
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    if (!props.id) return;
-
-    const confirmed = confirm(`Are you sure you want to delete "${name}"?`);
-    if (!confirmed) return;
+    const deleteTarget = props.slug || props.id;
+    if (!deleteTarget) return;
 
     setDeleting(true);
     try {
-      const response = await fetch(`${url}/api/hostels/${props.id}`, {
+      const response = await fetch(`${url}/api/hostels/${deleteTarget}`, {
         method: "DELETE",
-        // ! Tambahin Cookies
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -38,8 +37,8 @@ export default function BuildingCard(props: IBuilding) {
 
       toast.success("Hostel deleted successfully!");
       router.refresh();
-    } catch (error: unknown) {
-      toast.error((error as string) || "Failed to delete hostel");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete hostel");
     } finally {
       setDeleting(false);
     }
@@ -49,8 +48,10 @@ export default function BuildingCard(props: IBuilding) {
     <div
       className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer"
       onClick={() => {
-        if (props.id) {
-          router.push(`/hostel/${props.id}`);
+        const target = props.slug || props.id;
+        console.log("Navigating with:", { slug: props.slug, id: props.id, target });
+        if (target) {
+          router.push(`/hostel/${target}`);
         }
       }}
     >
