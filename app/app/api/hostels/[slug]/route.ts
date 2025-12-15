@@ -31,6 +31,10 @@ export async function GET(req: NextRequest, props: IProps) {
       throw new NotFoundError("Hostel not found");
     }
 
+    // api/hostel/:hostelId/
+    //
+    //rooms/:roomsID
+
     return NextResponse.json(hostel);
   } catch (error: unknown) {
     const { message, status } = customError(error);

@@ -1,14 +1,20 @@
 import { ObjectId } from "mongodb";
-import {
-  Model,
-  IMongoloquentSchema,
-  IMongoloquentTimestamps,
-} from "mongoloquent";
 
 export enum TransactionStatus {
   paid = "PAID",
   unpaid = "UNPAID",
   pending = "PENDING",
+}
+
+export interface ITransaction {
+  tenantId: ObjectId;
+  amount: number;
+  status: TransactionStatus;
+  dueDate: Date;
+  paidAt?: Date;
+  midTransTransactionId: string;
+  midtransOrderId: string;
+  rentId: ObjectId;
 }
 
 export interface IJWTPayload {
@@ -47,12 +53,22 @@ export interface ITenant {
   isActive: boolean;
 }
 
+export interface ICreateTenant {
+  name: string;
+  email: string;
+  birthday: Date;
+  phoneNumber: string;
+  isActive: boolean;
+  roomId: ObjectId;
+  additionalIds?: string[]; // Array of additional IDs to attach to rent
+}
+
 export interface IRent {
   price: number;
   roomId: ObjectId;
   tenantId: ObjectId;
   leaveAt?: Date;
-  joinAt: Date; 
+  joinAt: Date;
 }
 
 export interface ILogin {
