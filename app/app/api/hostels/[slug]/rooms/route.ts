@@ -15,14 +15,13 @@ export async function GET(req: NextRequest, props: IProps) {
   try {
     const { slug } = await props.params;
     const hostelSlug = slug;
-    
+
     // Get hostel by slug to retrieve hostelId
     const hostel = await Hostel.where("slug", hostelSlug).first();
     if (!hostel) {
       throw new NotFoundError("Hostel not found");
     }
-    const hostelId = hostel?._id // Can be null...
-
+    const hostelId = hostel?._id; // Can be null...
 
     // Get rooms using the hostelId from the hostel
     const rooms = await Room.where("hostelId", hostel._id).get();
@@ -46,7 +45,7 @@ export async function POST(req: NextRequest, props: IProps) {
     if (!hostel) {
       throw new NotFoundError("Hostel not found");
     }
-    const hostelId = hostel?._id
+    const hostelId = hostel?._id;
 
     // Create room using the hostelId from the hostel
     await Room.create({

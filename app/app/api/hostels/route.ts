@@ -31,24 +31,27 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body: IHostel = await req.json();
+    console.log(body);
     // Validations
+
     const id = req.headers.get("x-owner-id");
     if (!id) throw new UnauthorizedError();
     const _id = new ObjectId(id);
+
+    // Slug Creator
+    const newSlug = body.name.toLowerCase().split(" ").join("-");
 
     // Parse and body validation
     hostelCreateSchema.parse({
       name: body.name,
       address: body.address,
+      slug: newSlug,
     });
 
-    // Slug Creator
-    const newSlug = body.name.toLowerCase().split(" ").join("-");
-
+    // Duplicate Check
     const hostel = await Hostel.where("name", body.name)
       .where("slug", newSlug)
       .first();
-    // Duplicate Check
     if (hostel) {
       throw new BadRequest("Hostel already exists");
     }
