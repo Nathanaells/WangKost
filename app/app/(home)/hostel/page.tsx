@@ -17,7 +17,7 @@ async function getHostels(): Promise<IHostel[]> {
     const cookieStore = await cookies();
     const token = cookieStore.get("access_token");
 
-    const response = await fetch(`${url}/api/hostel`, {
+    const response = await fetch(`${url}/api/hostels`, {
       headers: {
         Cookie: `access_token=${token?.value}`,
       },
@@ -66,12 +66,10 @@ export default async function HostelPage() {
             {hostels.map((hostel: IHostel, index: number) => (
               <BuildingCard
                 key={index}
+                id={hostel._id}
                 name={hostel.name}
-                type="Hostel"
                 totalRooms={hostel.maxRoom || 0}
                 occupancy={0}
-                facilities={[]}
-                color={index % 2 === 0 ? "blue" : "pink"}
               />
             ))}
           </div>
