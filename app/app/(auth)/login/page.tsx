@@ -26,12 +26,12 @@ export default function LoginPage() {
     if (!resp.ok) {
       if (data.message.length > 1) {
         data.message.forEach((el: string) => {
-          let text: string[] = el.split(":");
+          const text: string[] = el.split(":");
           showError(text[1]);
         });
         return;
       } else {
-        let text: string = data.message[0].split(":")[1];
+        const text: string = data.message[0].split(":")[1];
         showError(text);
         return;
       }
