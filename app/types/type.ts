@@ -19,6 +19,7 @@ export interface IJWTPayload {
 
 export interface IHostel {
   name: string;
+  slug: string;
   address: string;
   maxRoom?: number;
   description?: string;

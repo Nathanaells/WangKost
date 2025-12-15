@@ -11,6 +11,7 @@ import z from "zod";
 
 interface IHostel extends IMongoloquentSchema, IMongoloquentTimestamps {
   name: string;
+  slug: string;
   address: string;
   maxRoom?: number;
   description?: string;

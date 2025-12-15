@@ -1,20 +1,31 @@
 import customError from "@/server/errorHandler/customError";
+import Hostel from "@/server/models/Hostel";
 import Room from "@/server/models/Room";
 import { IRoom } from "@/types/type";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
+import { NotFoundError } from "@/server/errorHandler/classError";
 
 interface IProps {
-  params: Promise<{ hostelId: string }>;
+  params: Promise<{ slug: string }>;
 }
 
 // GET all rooms for a hostel
 export async function GET(req: NextRequest, props: IProps) {
   try {
-    const { hostelId } = await props.params;
-    const hostelObjectId = new ObjectId(hostelId);
+    const { slug } = await props.params;
+    const hostelSlug = slug;
+    
+    // Get hostel by slug to retrieve hostelId
+    const hostel = await Hostel.where("slug", hostelSlug).first();
+    if (!hostel) {
+      throw new NotFoundError("Hostel not found");
+    }
+    const hostelId = hostel?._id // Can be null...
 
-    const rooms = await Room.where("hostelId", hostelObjectId).get();
+
+    // Get rooms using the hostelId from the hostel
+    const rooms = await Room.where("hostelId", hostel._id).get();
 
     return NextResponse.json(rooms);
   } catch (error: unknown) {
@@ -27,13 +38,21 @@ export async function GET(req: NextRequest, props: IProps) {
 export async function POST(req: NextRequest, props: IProps) {
   try {
     const body: IRoom = await req.json();
-    const { hostelId } = await props.params;
-    const hostelObjectId = new ObjectId(hostelId);
+    const { slug } = await props.params;
+    const hostelSlug = slug;
 
+    // Get hostel by slug to retrieve hostelId
+    const hostel = await Hostel.where("slug", hostelSlug).first();
+    if (!hostel) {
+      throw new NotFoundError("Hostel not found");
+    }
+    const hostelId = hostel?._id
+
+    // Create room using the hostelId from the hostel
     await Room.create({
       fixedCost: body.fixedCost,
       isAvailable: true,
-      hostelId: hostelObjectId,
+      hostelId: hostelId,
     });
 
     return NextResponse.json(
