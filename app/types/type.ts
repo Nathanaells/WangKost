@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import { int } from "zod";
 
 export enum TransactionStatus {
   paid = "PAID",
@@ -71,13 +72,27 @@ export interface IRent {
   joinAt: Date;
 }
 
-export interface IRentObject {
+export interface IMidTrans {
+  midTransTransactionId: string;
+  midTransOrderId: string;
+}
+
+export interface IRentObject<T = never> {
   _id: ObjectId;
   price: number;
   roomId: ObjectId;
   tenantId: ObjectId;
   leaveAt?: Date;
   joinAt: Date;
+  additionals?: T;
+}
+
+// Type alias untuk rent dengan additionals
+export type IRentWithAdditionals = IRentObject<IRespAdditional[]>;
+
+export interface IRentAdditional {
+  rent: IRentObject;
+  additionals: IRespAdditional[];
 }
 
 export interface ILogin {
@@ -88,4 +103,12 @@ export interface ILogin {
 export interface IAdditional {
   name: string;
   price: number;
+}
+
+export interface IRespAdditional {
+  _id: ObjectId;
+  name: string;
+  price: number;
+  createdAt: Date;
+  updatedAt: Date;
 }

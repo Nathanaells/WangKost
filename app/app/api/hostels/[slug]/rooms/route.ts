@@ -37,9 +37,9 @@ export async function POST(req: NextRequest, props: IProps) {
     const { slug } = await props.params;
 
     // Get hostel by slug to retrieve hostelId
-    const hostel = await Hostel.where('slug', slug).first();
+    const hostel = await Hostel.where("slug", slug).first();
     if (!hostel) {
-      throw new NotFoundError('Hostel not found');
+      throw new NotFoundError("Hostel not found");
     }
 
     // Maximum Room Check
@@ -53,7 +53,6 @@ export async function POST(req: NextRequest, props: IProps) {
       }
     }
 
-    // Create room using the hostelId from the hostel
     await Room.create({
       fixedCost: body.fixedCost,
       isAvailable: true,
