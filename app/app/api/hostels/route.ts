@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     // Validations
     const id = req.headers.get("x-owner-id");
     if (!id) throw new UnauthorizedError();
-    const _id = new ObjectId(id);
+    const ownerId = new ObjectId(id);
 
     // Slug Creator
     const newSlug = body.name.toLowerCase().split(" ").join("-");
@@ -51,36 +51,18 @@ export async function POST(req: NextRequest) {
 
     if (hostel) {
       throw new BadRequest("Hostel already exists");
-    }
+    } 
 
-    // Create Hostel
-    const newHostel = await Hostel.create({
+   const newHostel = await Hostel.create({
       name: body.name,
-      slug: newSlug,
-      description: body.description,
       address: body.address,
-      maxRoom: body.maxRoom,
-      ownerId: _id,
+      slug: newSlug,
+      ownerId,
     });
-
-    // Auto-create rooms based on maxRoom
-    if (body.maxRoom && body.maxRoom > 0) {
-      const roomsToCreate = [];
-      const roomPrice = (body as any).fixedCost || 0;
-      for (let i = 1; i <= body.maxRoom; i++) {
-        roomsToCreate.push({
-          roomNumber: `${i}`,
-          fixedCost: roomPrice,
-          isAvailable: true,
-          hostelId: newHostel._id,
-        });
-      }
-
-      // Bulk create rooms
-      await Promise.all(roomsToCreate.map((room) => Room.create(room)));
-    }
-
-    return NextResponse.json({ message: "Hostel created" }, { status: 201 });
+    return NextResponse.json({
+      message: "Hostel created",
+      status: 201
+    })
   } catch (error: unknown) {
     const { message, status } = customError(error);
     return NextResponse.json({ message }, { status });
