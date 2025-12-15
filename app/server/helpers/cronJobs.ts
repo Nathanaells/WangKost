@@ -10,9 +10,8 @@ export function startTestingCron() {
 
       const API_URL = "http://localhost:3000/api/rents";
       const OWNER_ID = "693dcfd8b69eaa40081ea1f3";
-      const JWT_TOKEN =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTNkY2ZkOGI2OWVhYTQwMDgxZWExZjMiLCJlbWFpbCI6Im5hdGhhbmFlbEBnbWFpbC5jb20iLCJwaG9uZU51bWJlciI6IjA4MTIyNzQ0NjU1MCIsImlhdCI6MTc2NTcwNDIxM30.v4xC-yPUl4tGhOaW7nSoEYRLl9xPHgvdl7iJLyWnWM4";
-      const N8N_WEBHOOK = "https://wangkost.app.n8n.cloud/webhook-test/send-wa";
+      const JWT_TOKEN = process.env.JWT_TOKEN as string;
+      const N8N_WEBHOOK = process.env.N8N_WEBHOOK as string;
       const WHATSAPP_NUMBER = "+6281532812020";
       const rentResponse = await fetch(API_URL, {
         method: "GET",
