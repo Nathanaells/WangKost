@@ -1,4 +1,4 @@
-import { NotFoundError, UnauthorizedError } from "@/server/errorHandler/classError";
+import { BadRequest, NotFoundError, UnauthorizedError } from "@/server/errorHandler/classError";
 import customError from "@/server/errorHandler/customError";
 import Rent from "@/server/models/Rent";
 import Room from "@/server/models/Room";
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest, props: IProps) {
     if (!room) throw new NotFoundError("Room not found");
 
     // Check if room is avaiable.
-    if (!room?.isAvailable) throw new Error("Room is not available")
+    if (!room?.isAvailable) throw new BadRequest("Room is not available")
     
 
 
