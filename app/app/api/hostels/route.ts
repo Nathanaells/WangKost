@@ -56,6 +56,8 @@ export async function POST(req: NextRequest) {
    const newHostel = await Hostel.create({
       name: body.name,
       address: body.address,
+      description: body.description,
+      maxRoom: body.maxRoom,
       slug: newSlug,
       ownerId,
     });

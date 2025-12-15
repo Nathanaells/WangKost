@@ -8,8 +8,10 @@ import Link from 'next/link';
 
 async function createHostel(formData: { name: string; address: string; description: string; maxRoom: number; fixedCost: number }) {
     try {
+        // Step 1: Create the hostel
         const response = await fetch(`${url}/api/hostels`, {
             method: 'POST',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -20,6 +22,29 @@ async function createHostel(formData: { name: string; address: string; descripti
 
         if (!response.ok) {
             throw new Error(data.message || 'Failed to create hostel');
+        }
+
+        // Step 2: Create rooms if maxRoom > 0
+        if (formData.maxRoom > 0) {
+            const slug = formData.name.toLowerCase().split(" ").join("-");
+            
+            const roomPromises = [];
+            for (let i = 1; i <= formData.maxRoom; i++) {
+                roomPromises.push(
+                    fetch(`${url}/api/hostels/${slug}/rooms`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            fixedCost: formData.fixedCost,
+                        }),
+                    })
+                );
+            }
+            
+            await Promise.all(roomPromises);
         }
 
         return { success: true, message: 'Hostel created successfully!' };
