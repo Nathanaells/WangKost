@@ -102,29 +102,5 @@ export default async function HostelPage() {
                 )}
             </div>
         </div>
-
-        {hostels.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-            <p className="text-gray-500">
-              No hostels found. Create your first one!
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {hostels.map((hostel: IHostel, index: number) => (
-              <BuildingCard
-                key={index}
-                name={hostel.name}
-                type="Hostel"
-                totalRooms={hostel.maxRoom || 0}
-                occupancy={0}
-                facilities={[]}
-                color={index % 2 === 0 ? "blue" : "pink"}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
   );
 }
