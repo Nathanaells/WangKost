@@ -5,7 +5,7 @@ import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 
 interface IProps {
-  params: Promise<{ hostelId: string; roomId: string }>;
+  params: Promise<{ roomId: string }>;
 }
 
 // GET single room
@@ -25,6 +25,7 @@ export async function GET(req: NextRequest, props: IProps) {
 }
 
 // PATCH update room
+// No Function yet?
 export async function PATCH(req: NextRequest, props: IProps) {
   try {
     const body = await req.json();

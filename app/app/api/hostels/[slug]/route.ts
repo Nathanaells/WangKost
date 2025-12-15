@@ -8,7 +8,7 @@ import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 
 interface IProps {
-  params: Promise<{ hostelId: string }>;
+  params: Promise<{ slug: string }>;
 }
 
 // GET single hostel by ID
@@ -20,11 +20,11 @@ export async function GET(req: NextRequest, props: IProps) {
 
     // Mutating to Object ID
     const ownerObjectId = new ObjectId(ownerId);
-    const { hostelId } = await props.params;
+    const { slug } = await props.params;
 
-    const hostelObjectId = new ObjectId(hostelId);
+    const hostelSlug = slug
     const hostel = await Hostel.where("ownerId", ownerObjectId)
-      .where("_id", hostelObjectId)
+      .where("slug", hostelSlug)
       .first();
 
     if (!hostel) {
@@ -50,11 +50,11 @@ export async function PATCH(req: NextRequest, props: IProps) {
     if (!ownerId) throw new UnauthorizedError();
 
     const ownerObjectId = new ObjectId(ownerId);
-    const { hostelId } = await props.params;
-    const hostelObjectId = new ObjectId(hostelId);
+    const { slug } = await props.params;
+    const hostelSlug = slug
 
     const hostel = await Hostel.where("ownerId", ownerObjectId)
-      .where("_id", hostelObjectId)
+      .where("slug", hostelSlug)
       .first();
 
     if (!hostel) {
@@ -62,7 +62,7 @@ export async function PATCH(req: NextRequest, props: IProps) {
     }
 
     // Update hostel
-    await Hostel.where("_id", hostelObjectId).update(body);
+    await Hostel.where("slug", hostelSlug).update(body);
 
     return NextResponse.json({ message: "Hostel updated" });
   } catch (error: unknown) {
@@ -78,11 +78,11 @@ export async function DELETE(req: NextRequest, props: IProps) {
     if (!ownerId) throw new UnauthorizedError();
 
     const ownerObjectId = new ObjectId(ownerId);
-    const { hostelId } = await props.params;
-    const hostelObjectId = new ObjectId(hostelId);
+    const { slug } = await props.params;
+    const hostelSlug = slug;
 
     const hostel = await Hostel.where("ownerId", ownerObjectId)
-      .where("_id", hostelObjectId)
+      .where("slug", hostelSlug)
       .first();
 
     if (!hostel) {
@@ -90,7 +90,7 @@ export async function DELETE(req: NextRequest, props: IProps) {
     }
 
     // Delete hostel
-    await Hostel.where("_id", hostelObjectId).delete();
+    await Hostel.where("slug", hostelSlug).delete();
 
     return NextResponse.json({ message: "Hostel deleted" });
   } catch (error: unknown) {
