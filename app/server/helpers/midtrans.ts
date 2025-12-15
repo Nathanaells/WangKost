@@ -14,16 +14,12 @@ interface PaymentData {
   }>;
 }
 
-/**
- * Create Midtrans payment
- */
 export async function createMidtransPayment(
   data: PaymentData
 ): Promise<{ token: string; redirect_url: string }> {
   try {
-    // Create Snap API instance
     const snap = new midtransClient.Snap({
-      isProduction: false, // Set to true for production
+      isProduction: false,
       serverKey: process.env.MIDTRANS_SERVER_KEY || "",
       clientKey: process.env.MIDTRANS_CLIENT_KEY || "",
     });
@@ -58,9 +54,6 @@ export async function createMidtransPayment(
   }
 }
 
-/**
- * Check payment status
- */
 export async function checkPaymentStatus(orderId: string): Promise<any> {
   try {
     const snap = new midtransClient.Snap({
