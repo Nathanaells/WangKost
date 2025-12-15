@@ -1,7 +1,10 @@
-import { NotFoundError } from "@/server/errorHandler/classError";
+import { NotFoundError, UnauthorizedError } from "@/server/errorHandler/classError";
 import customError from "@/server/errorHandler/customError";
 import Rent from "@/server/models/Rent";
 import Room from "@/server/models/Room";
+import { tenantCreateSchema } from "@/server/models/Tenant";
+import { ITenant } from "@/types/type";
+import { PhoneNumber } from "libphonenumber-js";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -70,6 +73,42 @@ export async function DELETE(req: NextRequest, props: IProps) {
 
     return NextResponse.json({ message: "Room deleted" });
   } catch (error: unknown) {
+    const { message, status } = customError(error);
+    return NextResponse.json({ message }, { status });
+  }
+}
+
+export async function POST(req: NextRequest, props: IProps) {
+  try {
+    // Validations
+    const id = req.headers.get("x-owner-id");
+    if (!id) throw new UnauthorizedError();
+    const _id = new ObjectId(id);
+    
+    // Get tenant data from body.
+    const { roomId } = await props.params;
+    const roomObjectId = new ObjectId(roomId);
+
+    // Attempt to find room
+    const room = await Room.where("_id", roomObjectId).first();
+    if (!room) throw new NotFoundError("Room not found");
+
+    // Check if room is avaiable.
+    if (!room?.isAvailable) throw new Error("Room is not available")
+    
+    const body: ITenant = await req.json();
+
+    // Parse and body validation
+    tenantCreateSchema.parse({
+      name: body.name,
+      email: body.email,
+      birthday: body.birthday,
+      phoneNumber: body.phoneNumber,
+      isActive: true
+    });
+
+
+  } catch (error) {
     const { message, status } = customError(error);
     return NextResponse.json({ message }, { status });
   }

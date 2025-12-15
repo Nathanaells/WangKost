@@ -47,8 +47,9 @@ export async function POST(req: NextRequest) {
     // Slug Creator
     const newSlug = body.name.toLowerCase().split(" ").join("-");
     
-    const hostel = await Hostel.where("name", body.name).where("slug", newSlug).first();
     // Duplicate Check
+    const hostel = await Hostel.where("name", body.name).where("slug", newSlug).first();
+    
     if (hostel) {
       throw new BadRequest("Hostel already exists");
     }

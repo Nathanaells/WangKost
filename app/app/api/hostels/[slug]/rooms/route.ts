@@ -46,7 +46,17 @@ export async function POST(req: NextRequest, props: IProps) {
     if (!hostel) {
       throw new NotFoundError("Hostel not found");
     }
-    const hostelId = hostel?._id
+
+    // Maximum Room Check
+    const hostelId = hostel._id;
+    const maxRooms = hostel.maxRoom;
+    
+    if (maxRooms) {
+      const currentRoomCount = await Room.where("hostelId", hostelId).count();
+      if (currentRoomCount >= maxRooms) {
+        throw new Error("Maximum room capacity reached");
+      }
+    }
 
     // Create room using the hostelId from the hostel
     await Room.create({
