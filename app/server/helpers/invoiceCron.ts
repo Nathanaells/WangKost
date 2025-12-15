@@ -6,12 +6,10 @@ import Transaction from "../models/Transaction";
 import { TransactionStatus } from "@/types/type";
 
 // Configuration
-const N8N_WEBHOOK = "https://wangkost.app.n8n.cloud/webhook-test/send-wa";
-const MIDTRANS_SERVER_KEY = "Mid-server-T7T35sAlTGGZufA3x7H3MNQ1";
-const MIDTRANS_IS_PRODUCTION = false;
-const MIDTRANS_API_URL = MIDTRANS_IS_PRODUCTION
-  ? "https://app.midtrans.com/snap/v1/transactions"
-  : "https://app.sandbox.midtrans.com/snap/v1/transactions";
+const N8N_WEBHOOK = process.env.N8N_WEBHOOK as string;
+const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY as string;
+const MIDTRANS_IS_PRODUCTION = process.env.MIDTRANS_IS_PRODUCTION as string;
+const MIDTRANS_API_URL = process.env.MIDTRANS_API_URL as string;
 
 export function startInvoiceGenerationCron() {
   cron.schedule("* * * * *", async () => {
@@ -60,8 +58,7 @@ export function startInvoiceGenerationCron() {
 
           const additionals = await rentInstance.additionals().get();
 
-          // Step 5: Calculate total amount
-          let totalAmount = rent.price; // Base room price
+          let totalAmount = rent.price;
           let additionalDetails: any[] = [];
 
           for (const additional of additionals) {
@@ -72,12 +69,6 @@ export function startInvoiceGenerationCron() {
             });
           }
 
-          console.log(
-            `💵 Total Amount: Rp ${totalAmount.toLocaleString("id-ID")}`
-          );
-          console.log(
-            `   - Room Price: Rp ${rent.price.toLocaleString("id-ID")}`
-          );
           if (additionalDetails.length > 0) {
             additionalDetails.forEach((add) => {
               console.log(
@@ -86,7 +77,6 @@ export function startInvoiceGenerationCron() {
             });
           }
 
-          // Step 6: Get tenant info for WhatsApp
           const tenant = await Tenant.find(rent.tenantId);
           if (!tenant) {
             console.log(`❌ Tenant not found`);
@@ -99,12 +89,8 @@ export function startInvoiceGenerationCron() {
           console.log(`   - Phone: ${tenant.phoneNumber}`);
           const room = await Room.find(rent.roomId);
 
-          // Set due date (TESTING: 1 day from now, PRODUCTION: based on billing cycle)
           const dueDate = new Date();
-          dueDate.setDate(dueDate.getDate() + 1); // Due in 1 day for testing
-
-          // Step 8: Create Midtrans transaction using SNAP API
-          console.log(`🔐 Creating Midtrans transaction...`);
+          dueDate.setDate(dueDate.getDate() + 1);
           const orderId = `INV-${rent._id}-${Date.now()}`;
 
           const midtransPayload = {
@@ -143,15 +129,9 @@ export function startInvoiceGenerationCron() {
             ],
           };
 
-          console.log(
-            `🔐 Midtrans Payload:`,
-            JSON.stringify(midtransPayload, null, 2)
-          );
-
           const authString = Buffer.from(MIDTRANS_SERVER_KEY + ":").toString(
             "base64"
           );
-          console.log(`🔑 Auth: Basic ${authString.substring(0, 20)}...`);
 
           const midtransResponse = await fetch(MIDTRANS_API_URL, {
             method: "POST",
@@ -164,10 +144,6 @@ export function startInvoiceGenerationCron() {
           });
 
           const responseText = await midtransResponse.text();
-          console.log(
-            `📡 Midtrans Response Status: ${midtransResponse.status}`
-          );
-          console.log(`📡 Midtrans Response Body:`, responseText);
 
           if (!midtransResponse.ok) {
             throw new Error(
@@ -176,12 +152,6 @@ export function startInvoiceGenerationCron() {
           }
 
           const midtransResult = JSON.parse(responseText);
-          console.log(
-            `✅ Midtrans SNAP transaction created: ${midtransResult.token}`
-          );
-
-          // Step 9: Save transaction to database
-          console.log(`💾 Saving transaction to database...`);
           const newTransaction = await Transaction.create({
             tenantId: rent.tenantId,
             rentId: rent._id,
