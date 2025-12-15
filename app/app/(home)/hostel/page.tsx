@@ -6,10 +6,16 @@ import Link from "next/link";
 interface IHostel {
   _id: string;
   name: string;
+  slug?: string;
   address: string;
   description?: string;
   maxRoom: number;
   ownerId: string;
+}
+
+// Helper function to generate slug from name
+function generateSlug(name: string): string {
+  return name.toLowerCase().split(" ").join("-");
 }
 
 async function getHostels(): Promise<IHostel[]> {
@@ -37,6 +43,11 @@ async function getHostels(): Promise<IHostel[]> {
 
 export default async function HostelPage() {
   const hostels = await getHostels();
+  
+  // Debug: Check if slug exists
+  if (hostels.length > 0) {
+    console.log("First hostel data:", hostels[0]);
+  }
 
   return (
     <div className="p-4 pt-20 sm:ml-64 bg-gray-50 min-h-screen">
@@ -67,6 +78,7 @@ export default async function HostelPage() {
               <BuildingCard
                 key={index}
                 id={hostel._id}
+                slug={hostel.slug || generateSlug(hostel.name)}
                 name={hostel.name}
                 totalRooms={hostel.maxRoom || 0}
                 occupancy={0}
