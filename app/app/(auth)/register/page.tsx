@@ -1,11 +1,7 @@
 "use client";
 import url from "@/components/constant";
-<<<<<<< HEAD:app/app/register/page.tsx
-import { showError, showSuccess } from "@/components/Toast"
-=======
 import { showError, showSuccess } from "@/components/toast";
 import { useRouter } from "next/navigation";
->>>>>>> 2daae14288bb2d703710c7237576e819540192b2:app/app/(auth)/register/page.tsx
 import { FormEvent, useState } from "react";
 import { Toaster } from "react-hot-toast";
 
