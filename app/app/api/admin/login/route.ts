@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
+    console.log("tes <>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     const body: ILogin = await req.json();
 
     ownerLoginSchema.parse({

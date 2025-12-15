@@ -11,10 +11,10 @@ export async function proxy(req: NextRequest) {
     const path = req.nextUrl.pathname;
 
     const protectedPaths = [
-      "/api/hostel",
-      "/api/room",
-      "/api/tenant",
-      "api/rents",
+      "/api/hostels",
+      "/api/tenants",
+      "/api/rents",
+      "/api/additionals",
     ];
 
     if (path.startsWith("/api")) {

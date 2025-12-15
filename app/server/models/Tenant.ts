@@ -14,7 +14,6 @@ interface ITenant extends IMongoloquentSchema, IMongoloquentTimestamps {
   birthday: Date;
   phoneNumber: string;
   isActive: boolean;
-  rents: Rent[];
 }
 
 export const tenantCreateSchema = z.object({
@@ -31,9 +30,6 @@ export default class Tenant extends Model<ITenant> {
   public static $schema: ITenant;
   protected $collection: string = "tenants";
 
-  public room() {
-    return this.belongsTo(Room);
-  }
   public rent() {
     return this.hasMany(Rent);
   }

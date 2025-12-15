@@ -13,8 +13,10 @@ interface IRoom extends IMongoloquentSchema, IMongoloquentTimestamps {
   fixedCost: number;
   isAvailable: boolean;
   hostelId: ObjectId;
-  tenants?: Tenant[];
 }
+
+//! Gak pake array of tenant karena nanti kita bisa dapetin tenant pake collection konjungsion rent
+//! ada Room id dan tenant id disitu
 
 export default class Room extends Model<IRoom> {
   public static $schema: IRoom;
@@ -26,7 +28,5 @@ export default class Room extends Model<IRoom> {
   public rent() {
     return this.hasMany(Rent);
   }
-  public tenant() {
-    return this.hasMany(Tenant);
-  }
+  //!! Fixing relation Liat Diagaram, Room gaada tenant id
 }

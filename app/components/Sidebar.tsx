@@ -1,10 +1,17 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { deleteCookie } from '@/app/(auth)/login/action';
 
 export default function Sidebar() {
     const pathname = usePathname();
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        await deleteCookie('access_token');
+        router.push('/login');
+    };
 
     const menu = [
         {
@@ -113,9 +120,10 @@ export default function Sidebar() {
                         </ul>
                     </div>
 
-                    {/* Logout */}
-                    <div className="p-4 mb-4">
-                        <a href="#" className="flex items-center p-3 text-white rounded-xl hover:bg-white/10 group">
+                    <div className="border-t border-gray-200 pt-4 mt-4">
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group hover:text-[#5353ec] w-full">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
@@ -129,8 +137,8 @@ export default function Sidebar() {
                                     d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
                                 />
                             </svg>
-                            <span className="ms-3">Logout</span>
-                        </a>
+                            <span className="ms-3">Log Out</span>
+                        </button>
                     </div>
                 </div>
             </aside>
