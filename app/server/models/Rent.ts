@@ -39,6 +39,7 @@ export default class Rent extends Model<IRent> {
   }
 
   public additionals() {
-    return this.belongsToMany(Additional);
+    // Simple belongsToMany - Mongoloquent will auto-detect pivot table "additional_rent"
+    return this.belongsToMany(Additional, "rent_id");
   }
 }
