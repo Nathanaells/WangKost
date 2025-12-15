@@ -42,14 +42,16 @@ export async function POST(req: NextRequest) {
       address: body.address,
     });
 
-    // Duplicate Check
-    const hostel = await Hostel.where("name", body.name).first();
 
+
+    // Slug Creator
+    const newSlug = body.name.toLowerCase().split(" ").join("-");
+    
+    const hostel = await Hostel.where("name", body.name).where("slug", newSlug).first();
+    // Duplicate Check
     if (hostel) {
       throw new BadRequest("Hostel already exists");
     }
-    // Slug Creator
-    const newSlug = body.name.toLowerCase().split(" ").join("-");
     // Create Hostel
     await Hostel.create({
       name: body.name,
