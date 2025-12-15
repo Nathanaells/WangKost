@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import url from '@/components/constant';
 import Link from 'next/link';
 
-async function createHostel(formData: { name: string; address: string; description: string; maxRoom: number; fixedCost: number }) {
+async function createHostel(formData: { name: string; address: string; description: string; maxRoom: number }) {
     try {
         const response = await fetch(`${url}/api/hostels`, {
             method: 'POST',
@@ -37,7 +37,6 @@ export default function AddHostelPage() {
         address: '',
         description: '',
         maxRoom: 0,
-        fixedCost: 0,
     });
     const [submitting, setSubmitting] = useState(false);
     const router = useRouter();
@@ -128,23 +127,6 @@ export default function AddHostelPage() {
                                 }
                                 className="w-full text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter max rooms"
-                                min="0"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Room Price (per month)</label>
-                            <input
-                                type="number"
-                                value={formData.fixedCost}
-                                onChange={(e) =>
-                                    setFormData({
-                                        ...formData,
-                                        fixedCost: parseInt(e.target.value) || 0,
-                                    })
-                                }
-                                className="w-full text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter room price"
                                 min="0"
                             />
                         </div>
