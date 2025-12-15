@@ -1,6 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import toast from 'react-hot-toast';
+import url from './constant';
 
 interface IBuilding {
     id?: string;
@@ -9,14 +12,44 @@ interface IBuilding {
     totalRooms: number;
     occupancy: number;
     facilities: string[];
-    color: 'blue' | 'pink';
+    onDelete?: () => void;
 }
 
-export default function BuildingCard({ id, name, type, totalRooms, occupancy, facilities, color }: IBuilding) {
+export default function BuildingCard({ id, name, type, totalRooms, occupancy, facilities, onDelete }: IBuilding) {
     const router = useRouter();
-    const isBlue = color === 'blue';
-    const textColor = isBlue ? 'text-blue-600' : 'text-pink-600';
-    const iconColor = isBlue ? 'text-blue-600' : 'text-pink-600';
+    const [deleting, setDeleting] = useState(false);
+
+    const handleDelete = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+
+        if (!id) return;
+
+        const confirmed = confirm(`Are you sure you want to delete "${name}"?`);
+        if (!confirmed) return;
+
+        setDeleting(true);
+        try {
+            const response = await fetch(`${url}/api/hostels/${id}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.message || 'Failed to delete hostel');
+            }
+
+            toast.success('Hostel deleted successfully!');
+            if (onDelete) {
+                onDelete();
+            }
+            router.refresh();
+        } catch (error: unknown) {
+            console.error(error);
+            toast.error(error.message || 'Failed to delete hostel');
+        } finally {
+            setDeleting(false);
+        }
+    };
 
     return (
         <div
@@ -28,14 +61,14 @@ export default function BuildingCard({ id, name, type, totalRooms, occupancy, fa
             }}>
             <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${isBlue ? 'bg-blue-50' : 'bg-pink-50'}`}>
+                    <div className={`p-2 rounded-lg bg-blue-50`}>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
                             strokeWidth={1.5}
                             stroke="currentColor"
-                            className={`w-6 h-6 ${iconColor}`}>
+                            className={`w-6 h-6 text-blue-600`}>
                             <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -46,34 +79,7 @@ export default function BuildingCard({ id, name, type, totalRooms, occupancy, fa
                     <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
                 </div>
                 <div className="flex gap-2">
-                    <button
-                        className="p-1 text-gray-400 hover:text-gray-600"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            // Handle edit
-                            console.log('Edit clicked');
-                        }}>
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={1.5}
-                            stroke="currentColor"
-                            className="w-5 h-5">
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
-                            />
-                        </svg>
-                    </button>
-                    <button
-                        className="p-1 text-red-400 hover:text-red-600"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            // Handle delete
-                            console.log('Delete clicked');
-                        }}>
+                    <button className="p-1 text-red-400 hover:text-red-600 disabled:opacity-50" onClick={handleDelete} disabled={deleting}>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
@@ -90,8 +96,6 @@ export default function BuildingCard({ id, name, type, totalRooms, occupancy, fa
                     </button>
                 </div>
             </div>
-
-            <div className={`mb-6 font-medium ${textColor}`}>{type}</div>
 
             <div className="grid grid-cols-2 gap-4 mb-6">
                 <div>
