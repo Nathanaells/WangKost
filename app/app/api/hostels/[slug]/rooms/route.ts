@@ -3,7 +3,7 @@ import Hostel from "@/server/models/Hostel";
 import Room from "@/server/models/Room";
 import { IRoom } from "@/types/type";
 import { NextRequest, NextResponse } from "next/server";
-import { NotFoundError } from "@/server/errorHandler/classError";
+import { BadRequest, NotFoundError } from "@/server/errorHandler/classError";
 
 interface IProps {
   params: Promise<{ slug: string }>;
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest, props: IProps) {
     if (maxRooms) {
       const currentRoomCount = await Room.where("hostelId", hostelId).count();
       if (currentRoomCount >= maxRooms) {
-        throw new Error("Maximum room capacity reached");
+        throw new BadRequest("Maximum room capacity reached");
       }
     }
 
