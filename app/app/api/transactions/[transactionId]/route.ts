@@ -11,7 +11,6 @@ interface IProps {
   params: Promise<{ transactionId: string }>;
 }
 
-// GET single transaction
 export async function GET(req: NextRequest, props: IProps) {
   try {
     const id = req.headers.get("x-owner-id");
