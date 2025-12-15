@@ -15,9 +15,6 @@ interface InvoiceData {
   paymentUrl: string;
 }
 
-/**
- * Generate barcode as base64 string
- */
 async function generateBarcode(text: string): Promise<string> {
   try {
     const png = await bwipjs.toBuffer({

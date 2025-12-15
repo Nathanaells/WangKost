@@ -6,10 +6,10 @@ import { ObjectId } from 'mongodb';
 import { NextRequest, NextResponse } from 'next/server';
 
 interface IProps {
-    params: Promise<{ hostelId: string }>;
+    params: Promise<{ slug: string }>;
 }
 
-// GET single hostel by ID
+// GET single hostel by slug
 export async function GET(req: NextRequest, props: IProps) {
     try {
         // Validations
@@ -18,17 +18,16 @@ export async function GET(req: NextRequest, props: IProps) {
 
         // Mutating to Object ID
         const ownerObjectId = new ObjectId(ownerId);
-        const { hostelId } = await props.params;
+        const { slug } = await props.params;
 
-        const hostelObjectId = new ObjectId(hostelId);
-        const hostel = await Hostel.where('ownerId', ownerObjectId).where('_id', hostelObjectId).first();
+        const hostel = await Hostel.where('ownerId', ownerObjectId).where('slug', slug).first();
 
         if (!hostel) {
             throw new NotFoundError('Hostel not found');
         }
 
         // Fetch rooms for this hostel
-        const rooms = await Room.where('hostelId', hostelObjectId).get();
+        const rooms = await Room.where('hostelId', hostel._id).get();
 
         // Return hostel with rooms
         return NextResponse.json({
@@ -49,17 +48,16 @@ export async function PATCH(req: NextRequest, props: IProps) {
         if (!ownerId) throw new UnauthorizedError();
 
         const ownerObjectId = new ObjectId(ownerId);
-        const { hostelId } = await props.params;
-        const hostelObjectId = new ObjectId(hostelId);
+        const { slug } = await props.params;
 
-        const hostel = await Hostel.where('ownerId', ownerObjectId).where('_id', hostelObjectId).first();
+        const hostel = await Hostel.where('ownerId', ownerObjectId).where('slug', slug).first();
 
         if (!hostel) {
             throw new NotFoundError('Hostel not found');
         }
 
         // Update hostel
-        await Hostel.where('_id', hostelObjectId).update(body);
+        await Hostel.where('_id', hostel._id).update(body);
 
         return NextResponse.json({ message: 'Hostel updated' });
     } catch (error: unknown) {
@@ -75,17 +73,16 @@ export async function DELETE(req: NextRequest, props: IProps) {
         if (!ownerId) throw new UnauthorizedError();
 
         const ownerObjectId = new ObjectId(ownerId);
-        const { hostelId } = await props.params;
-        const hostelObjectId = new ObjectId(hostelId);
+        const { slug } = await props.params;
 
-        const hostel = await Hostel.where('ownerId', ownerObjectId).where('_id', hostelObjectId).first();
+        const hostel = await Hostel.where('ownerId', ownerObjectId).where('slug', slug).first();
 
         if (!hostel) {
             throw new NotFoundError('Hostel not found');
         }
 
         // Delete hostel
-        await Hostel.where('_id', hostelObjectId).delete();
+        await Hostel.where('_id', hostel._id).delete();
 
         return NextResponse.json({ message: 'Hostel deleted' });
     } catch (error: unknown) {
