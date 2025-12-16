@@ -19,6 +19,20 @@ export interface ITransaction {
   rentId: ObjectId;
 }
 
+export interface ITransactionResponse {
+  _id: ObjectId;
+  tenantId: ObjectId;
+  amount: number;
+  status: TransactionStatus;
+  dueDate: Date;
+  paidAt?: Date;
+  midTransTransactionId: string;
+  midtransOrderId: string;
+  rentId: ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface IJWTPayload {
   userId: ObjectId;
   phoneNumber: string;

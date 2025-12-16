@@ -12,7 +12,6 @@ import customError from "@/server/errorHandler/customError";
 export async function POST(request: NextRequest) {
   try {
     const body: IMidtransResponse = await request.json();
-    console.log(body, "<<< WEBHOOK BODY");
     const {
       order_id,
       transaction_status,
@@ -38,11 +37,9 @@ export async function POST(request: NextRequest) {
     }
 
     const transaction = await Transaction.where(
-      "midTransTransactionId",
+      "midTransOrderId",
       order_id
     ).first();
-
-    console.log(transaction, "<<< TRANSACTION");
 
     if (!transaction) {
       throw new NotFoundError("Transaction not found");
