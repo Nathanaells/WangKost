@@ -41,6 +41,24 @@ export default function AddTenantButton({ roomId, slug, fixedCost, allAdditional
         setSubmitting(true);
 
         try {
+            // Format phone number with +62 prefix
+            let formattedPhone = formData.phoneNumber.trim();
+            
+            // Remove leading 0 if exists
+            if (formattedPhone.startsWith('0')) {
+                formattedPhone = formattedPhone.substring(1);
+            }
+            
+            // Remove +62 or 62 if already exists
+            if (formattedPhone.startsWith('+62')) {
+                formattedPhone = formattedPhone.substring(3);
+            } else if (formattedPhone.startsWith('62')) {
+                formattedPhone = formattedPhone.substring(2);
+            }
+            
+            // Add +62 prefix
+            formattedPhone = '+62' + formattedPhone;
+
             const response = await fetch(`${url}/api/tenants`, {
                 method: 'POST',
                 headers: {
@@ -48,6 +66,7 @@ export default function AddTenantButton({ roomId, slug, fixedCost, allAdditional
                 },
                 body: JSON.stringify({
                     ...formData,
+                    phoneNumber: formattedPhone,
                     roomId,
                 }),
             });
@@ -150,14 +169,19 @@ export default function AddTenantButton({ roomId, slug, fixedCost, allAdditional
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
-                                    <input
-                                        type="tel"
-                                        value={formData.phoneNumber}
-                                        onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                                        className="w-full text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Enter phone number"
-                                        required
-                                    />
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span className="text-gray-500 text-sm">+62</span>
+                                        </div>
+                                        <input
+                                            type="tel"
+                                            value={formData.phoneNumber}
+                                            onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                                            className="w-full text-black pl-12 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="8123456789"
+                                            required
+                                        />
+                                    </div>
                                 </div>
 
                                 <div className="flex items-center">

@@ -16,7 +16,7 @@ export default function Sidebar() {
     const menu = [
         {
             name: 'Dashboard',
-            href: '/',
+            href: '/dashboard',
             icon: (
                 <svg
                     xmlns="http://www.w3.org/2000/svg"

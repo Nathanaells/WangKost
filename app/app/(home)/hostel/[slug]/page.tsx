@@ -1,6 +1,7 @@
 import url from '@/components/constant';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
+import EditMaxRoomButton from './EditMaxRoomButton';
 
 interface IRoom {
     _id: string;
@@ -113,20 +114,25 @@ export default async function HostelDetailPage(props: IProps) {
                                 </svg>
                                 {hostel.address}
                             </p>
+                            {hostel.maxRoom && <p className="text-gray-500 text-sm mt-2">Max Capacity: {hostel.maxRoom} rooms</p>}
                         </div>
-                        <Link
-                            href={`/hostel/${slug}/add-room`}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                            + Add Room
-                        </Link>
+                        <div className="flex gap-2">
+                            <EditMaxRoomButton slug={slug} currentMaxRoom={hostel.maxRoom} />
+                            <Link
+                                href={`/hostel/${slug}/add-room`}
+                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                + Add Room
+                            </Link>
+                        </div>
                     </div>
 
                     {hostel.description && <p className="text-gray-600 mb-4">{hostel.description}</p>}
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
                         <div className="bg-blue-50 p-4 rounded-lg">
                             <div className="text-blue-600 text-sm font-medium mb-1">Total Rooms</div>
                             <div className="text-2xl font-bold text-gray-900">{rooms.length}</div>
+                            {hostel.maxRoom && <div className="text-xs text-gray-500 mt-1">of {hostel.maxRoom} max</div>}
                         </div>
                         <div className="bg-green-50 p-4 rounded-lg">
                             <div className="text-green-600 text-sm font-medium mb-1">Occupied</div>
@@ -135,6 +141,10 @@ export default async function HostelDetailPage(props: IProps) {
                         <div className="bg-purple-50 p-4 rounded-lg">
                             <div className="text-purple-600 text-sm font-medium mb-1">Occupancy Rate</div>
                             <div className="text-2xl font-bold text-gray-900">{occupancyRate}%</div>
+                        </div>
+                        <div className="bg-orange-50 p-4 rounded-lg">
+                            <div className="text-orange-600 text-sm font-medium mb-1">Available</div>
+                            <div className="text-2xl font-bold text-gray-900">{rooms.length - occupiedRooms}</div>
                         </div>
                     </div>
                 </div>
