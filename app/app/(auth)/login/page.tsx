@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { showError, showSuccess } from '@/components/toast';
 import url from '@/components/constant';
 import { setCookie } from '@/app/(auth)/login/action';
-import { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 export default function LoginPage() {
     const [phoneNumber, setPhoneNumber] = useState<string>('');
@@ -41,8 +41,9 @@ export default function LoginPage() {
 
         showSuccess('Success Login');
         setTimeout(() => {
+            toast.dismiss(); // Dismiss all toasts before redirect
             router.push('/');
-        }, 1500);
+        }, 1000);
     };
 
     return (
@@ -168,7 +169,6 @@ export default function LoginPage() {
                             </button>
                         </div>
                     </div>
-                    <Toaster />
                 </div>
             </div>
         </div>

@@ -32,6 +32,7 @@ interface IRent {
 
 interface IRoom {
     _id: string;
+    roomNumber?: string;
     fixedCost: number;
     isAvailable: boolean;
     hostelId: string;
@@ -189,7 +190,9 @@ export default async function RoomDetailPage(props: IProps) {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
                     <div className="flex justify-between items-start mb-4">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-800 mb-2">Room Details</h1>
+                            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                                Room {room.roomNumber || 'N/A'}
+                            </h1>
                             <div className="flex items-center gap-3">
                                 <span
                                     className={`px-3 py-1 text-sm font-medium rounded-full ${

@@ -43,6 +43,7 @@ export interface IRoom {
   fixedCost: number;
   isAvailable: boolean;
   hostelId: ObjectId;
+  roomNumber?: string;
 }
 
 export interface ITenant {

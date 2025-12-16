@@ -1,129 +1,151 @@
-import BuildingCard from '@/components/BuildingCard';
+'use client';
+
+import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 import url from '@/components/constant';
-import { cookies } from 'next/headers';
 import Link from 'next/link';
 
-interface IRoom {
-    _id: string;
-    fixedCost: number;
-    isAvailable: boolean;
-    hostelId: string;
-}
-
-interface IHostel {
-    _id: string;
-    name: string;
-    slug?: string;
-    address: string;
-    description?: string;
-    maxRoom: number;
-    ownerId: string;
-    rooms?: IRoom[];
-}
-
-// Helper function to generate slug from name
-function generateSlug(name: string): string {
-    return name.toLowerCase().split(' ').join('-');
-}
-
-async function getHostels(): Promise<IHostel[]> {
+async function createHostel(formData: { name: string; address: string; description: string; maxRoom: number }) {
     try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get('access_token');
-
         const response = await fetch(`${url}/api/hostels`, {
+            method: 'POST',
             headers: {
-                Cookie: `access_token=${token?.value}`,
+                'Content-Type': 'application/json',
             },
-            cache: 'no-store',
+            body: JSON.stringify(formData),
         });
 
+        const data = await response.json();
+
         if (!response.ok) {
-            throw new Error('Failed to fetch hostels');
+            throw new Error(data.message || 'Failed to create hostel');
         }
 
-        return await response.json();
-    } catch (error) {
-        console.error(error);
-        return [];
+        return { success: true, message: 'Hostel created successfully!' };
+    } catch (error: unknown) {
+        return {
+            success: false,
+            message: (error as Error).message || 'Failed to create hostel',
+        };
     }
 }
 
-async function getRoomsForHostel(slug: string): Promise<IRoom[]> {
-    try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get('access_token');
+export default function AddHostelPage() {
+    const [formData, setFormData] = useState({
+        name: '',
+        address: '',
+        description: '',
+        maxRoom: 0,
+    });
+    const [submitting, setSubmitting] = useState(false);
+    const router = useRouter();
 
-        const response = await fetch(`${url}/api/hostels/${slug}/rooms`, {
-            headers: {
-                Cookie: `access_token=${token?.value}`,
-            },
-            cache: 'no-store',
-        });
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setSubmitting(true);
 
-        if (!response.ok) {
-            return [];
+        try {
+            const result = await createHostel(formData);
+
+            if (!result.success) {
+                throw new Error(result.message);
+            }
+
+            toast.success(result.message);
+            router.push('/hostel');
+        } catch (error: unknown) {
+            toast.error((error as Error).message || 'Failed to create hostel');
+        } finally {
+            setSubmitting(false);
         }
-
-        return await response.json();
-    } catch (error) {
-        console.error(error);
-        return [];
-    }
-}
-
-export default async function HostelPage() {
-    const hostels = await getHostels();
-
-    // Fetch rooms for each hostel
-    const hostelsWithRooms = await Promise.all(
-        hostels.map(async (hostel) => {
-            const rooms = await getRoomsForHostel(hostel.slug || generateSlug(hostel.name));
-            return { ...hostel, rooms };
-        })
-    );
+    };
 
     return (
         <div className="p-4 pt-20 sm:ml-64 bg-gray-50 min-h-screen">
-            <div className="max-w-7xl mx-auto pt-6">
-                {/* Header */}
-                <div className="flex justify-between items-center mb-8">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-800">My Hostels</h1>
-                        <p className="text-gray-500">Manage your properties</p>
+            <div className="max-w-2xl mx-auto pt-6">
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                    <div className="flex items-center gap-4 mb-6">
+                        <Link href="/hostel" className="text-gray-500 hover:text-gray-700">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={1.5}
+                                stroke="currentColor"
+                                className="w-6 h-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                            </svg>
+                        </Link>
+                        <h2 className="text-2xl font-bold text-gray-800">Add New Hostel</h2>
                     </div>
-                    <Link
-                        href="/hostel/add-room"
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                        + Add New Hostel
-                    </Link>
+
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                            <input
+                                type="text"
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                className="w-full text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter hostel name"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Address *</label>
+                            <input
+                                type="text"
+                                value={formData.address}
+                                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                                className="w-full text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter address"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <textarea
+                                value={formData.description}
+                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                className="w-full text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter description"
+                                rows={3}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Max Rooms</label>
+                            <input
+                                type="number"
+                                value={formData.maxRoom}
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        maxRoom: parseInt(e.target.value) || 0,
+                                    })
+                                }
+                                className="w-full text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter max rooms"
+                                min="0"
+                            />
+                        </div>
+
+                        <div className="flex gap-3 pt-4">
+                            <Link
+                                href="/hostel"
+                                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-center">
+                                Cancel
+                            </Link>
+                            <button
+                                type="submit"
+                                disabled={submitting}
+                                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                {submitting ? 'Creating...' : 'Create Hostel'}
+                            </button>
+                        </div>
+                    </form>
                 </div>
-
-                {hostelsWithRooms.length === 0 ? (
-                    <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                        <p className="text-gray-500">No hostels found. Create your first one!</p>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {hostelsWithRooms.map((hostel: IHostel, index: number) => {
-                            const rooms = hostel.rooms || [];
-                            const totalRooms = rooms.length;
-                            const occupiedRooms = rooms.filter((room) => !room.isAvailable).length;
-                            const occupancy = totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 0;
-
-                            return (
-                                <BuildingCard
-                                    key={index}
-                                    id={hostel._id}
-                                    slug={hostel.slug || generateSlug(hostel.name)}
-                                    name={hostel.name}
-                                    totalRooms={totalRooms}
-                                    occupancy={occupancy}
-                                />
-                            );
-                        })}
-                    </div>
-                )}
             </div>
         </div>
     );

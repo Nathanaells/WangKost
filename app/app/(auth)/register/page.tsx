@@ -3,7 +3,7 @@ import url from "@/components/constant";
 import { showError, showSuccess } from "@/components/toast";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
-import { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 export default function Register() {
   const [name, setName] = useState<string>("");
@@ -39,7 +39,10 @@ export default function Register() {
     }
 
     showSuccess("Success Registrasi");
-    router.push("/login");
+    setTimeout(() => {
+      toast.dismiss(); // Dismiss all toasts before redirect
+      router.push("/login");
+    }, 1000);
   }
 
   return (
@@ -157,7 +160,6 @@ export default function Register() {
               </a>
             </p>
           </div>
-          <Toaster />
         </form>
       </div>
     </div>

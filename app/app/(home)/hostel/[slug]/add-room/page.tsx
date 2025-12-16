@@ -65,7 +65,7 @@ export default function AddRoomPage() {
             const count = await getExistingRoomsCount(slug);
             setExistingRoomCount(count);
             const startIndex = count + 1;
-            setRooms([{ id: startIndex, roomName: `Room ${startIndex}`, fixedCost: 0 }]);
+            setRooms([{ id: startIndex, roomName: `${startIndex}`, fixedCost: 0 }]);
             setLoading(false);
         }
         initializeRooms();
@@ -74,12 +74,19 @@ export default function AddRoomPage() {
     const handleAddRoom = () => {
         const maxId = Math.max(...rooms.map((r) => r.id));
         const newId = maxId + 1;
-        setRooms([...rooms, { id: newId, roomName: `Room ${newId}`, fixedCost: 0 }]);
+        setRooms([...rooms, { id: newId, roomName: `${newId}`, fixedCost: 0 }]);
     };
 
     const handleRemoveRoom = (id: number) => {
         if (rooms.length > 1) {
-            setRooms(rooms.filter((room) => room.id !== id));
+            const filteredRooms = rooms.filter((room) => room.id !== id);
+            // Re-index the rooms
+            const reIndexedRooms = filteredRooms.map((room, index) => ({
+                ...room,
+                id: existingRoomCount + index + 1,
+                roomName: `${existingRoomCount + index + 1}`,
+            }));
+            setRooms(reIndexedRooms);
         }
     };
 
