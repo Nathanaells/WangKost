@@ -344,7 +344,7 @@ export default async function Dashboard() {
                                 <div>
                                     <p className="text-sm text-gray-600">Monthly Income</p>
                                     <p className="text-xl font-bold text-yellow-600">
-                                        Rp {(data.monthlyRevenue / 1000000).toFixed(1)}M
+                                        Rp {(data.monthlyRevenue / 1000000).toFixed(1)}
                                     </p>
                                 </div>
                                 <div className="text-yellow-600">

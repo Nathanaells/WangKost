@@ -14,35 +14,61 @@ export default function LoginPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        // Format phone number with +62 prefix
+        let formattedPhone = phoneNumber.trim();
+
+        // Remove leading 0 if exists
+        if (formattedPhone.startsWith('0')) {
+            formattedPhone = formattedPhone.substring(1);
+        }
+
+        // Remove +62 or 62 if already exists
+        if (formattedPhone.startsWith('+62')) {
+            formattedPhone = formattedPhone.substring(3);
+        } else if (formattedPhone.startsWith('62')) {
+            formattedPhone = formattedPhone.substring(2);
+        }
+
+        // Add +62 prefix
+        formattedPhone = '+62' + formattedPhone;
+
         const resp = await fetch(`${url}/api/admin/login`, {
             method: 'POST',
             headers: {
                 'Content-type': 'application/json',
             },
-            body: JSON.stringify({ phoneNumber, password }),
+            body: JSON.stringify({ phoneNumber: formattedPhone, password }),
         });
 
         const data = await resp.json();
         if (!resp.ok) {
-            if (data.message.length > 1) {
+            // Handle error messages
+            if (Array.isArray(data.message)) {
+                // If message is an array
                 data.message.forEach((el: string) => {
-                    const text: string[] = el.split(':');
-                    showError(text[1]);
+                    if (el.includes(':')) {
+                        const text: string[] = el.split(':');
+                        showError(text[1].trim());
+                    } else {
+                        showError(el);
+                    }
                 });
-                return;
+            } else if (typeof data.message === 'string') {
+                // If message is a string
+                showError(data.message);
             } else {
-                const text: string = data.message[0].split(':')[1];
-                showError(text);
-                return;
+                // Fallback
+                showError('Invalid phone number or password');
             }
+            return;
         }
 
         setCookie('access_token', data.access_token);
 
         showSuccess('Success Login');
         setTimeout(() => {
-            toast.dismiss()
-            router.push('/');
+            toast.dismiss();
+            router.push('/dashboard');
         }, 1000);
     };
 
@@ -72,15 +98,20 @@ export default function LoginPage() {
                             <label htmlFor="phoneNumber" className="block text-sm font-medium text-black mb-2">
                                 No. HP
                             </label>
-                            <input
-                                type="tel"
-                                id="phoneNumber"
-                                name="phoneNumber"
-                                value={phoneNumber}
-                                onChange={(e) => setPhoneNumber(e.target.value)}
-                                className="text-black w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 outline-none transition"
-                                placeholder="08123456789"
-                            />
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span className="text-gray-500 sm:text-sm">+62</span>
+                                </div>
+                                <input
+                                    type="tel"
+                                    id="phoneNumber"
+                                    name="phoneNumber"
+                                    value={phoneNumber}
+                                    onChange={(e) => setPhoneNumber(e.target.value)}
+                                    className="text-black w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-opacity-50 outline-none transition"
+                                    placeholder="8123456789"
+                                />
+                            </div>
                         </div>
 
                         <div>
