@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import url from '@/components/constant';
+import { showError, showSuccess } from '@/components/toast';
 
 interface IAdditional {
     _id: string;
@@ -55,14 +55,15 @@ export default function AddTenantButton({ roomId, slug, fixedCost, allAdditional
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.message || 'Failed to add tenant');
+                showError(data.message || 'Failed to add tenant');
+                return;
             }
 
-            toast.success('Tenant added successfully!');
+            showSuccess('Tenant added successfully!');
             setShowModal(false);
             router.refresh();
         } catch (error: unknown) {
-            toast.error((error as Error).message || 'Failed to add tenant');
+            showError((error as Error).message || 'Failed to add tenant');
         } finally {
             setSubmitting(false);
         }
@@ -93,7 +94,7 @@ export default function AddTenantButton({ roomId, slug, fixedCost, allAdditional
             </button>
 
             {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
                             <div className="flex justify-between items-center mb-6">
@@ -173,7 +174,7 @@ export default function AddTenantButton({ roomId, slug, fixedCost, allAdditional
                                 </div>
 
                                 {/* Additional Services */}
-                                <div className="border-t pt-4">                   
+                                <div className="border-t pt-4">
                                     {showCustomAdditional && (
                                         <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
                                             <input

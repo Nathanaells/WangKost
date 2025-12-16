@@ -3,7 +3,7 @@ import url from "@/components/constant";
 import { showError, showSuccess } from "@/components/toast";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
-import { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 export default function Register() {
   const [name, setName] = useState<string>("");
@@ -39,11 +39,14 @@ export default function Register() {
     }
 
     showSuccess("Success Registrasi");
-    router.push("/login");
+    setTimeout(() => {
+        toast.dismiss()
+        router.push("/login");
+    }, 1000)
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100 p-4">
       <div className="w-full max-w-md">
         <form
           onSubmit={(e) => handleSubmit(e)}
@@ -119,7 +122,7 @@ export default function Register() {
                   name="phoneNumber"
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   className="text-black w-full px-4 py-3 rounded-lg border"
-                  placeholder="Minimal 6 karakter"
+                  placeholder="08123456789"
                 />
               </div>
             </div>
@@ -132,7 +135,7 @@ export default function Register() {
                 name="password"
                 onChange={(e) => setPassword(e.target.value)}
                 className="text-black w-full px-4 py-3 rounded-lg border"
-                placeholder="08123456789"
+                placeholder="Minimal 6 karakter"
               />
             </div>
 
@@ -157,7 +160,6 @@ export default function Register() {
               </a>
             </p>
           </div>
-          <Toaster />
         </form>
       </div>
     </div>

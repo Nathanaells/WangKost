@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
 import { useRouter, useParams } from 'next/navigation';
 import url from '@/components/constant';
 import Link from 'next/link';
+import { showError, showSuccess } from '@/components/toast';
 
 interface RoomForm {
     id: number;
@@ -25,7 +25,10 @@ async function createRoom(slug: string, fixedCost: number) {
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.message || 'Failed to create room');
+            return {
+                success: false,
+                message: data.message || 'Failed to create room',
+            };
         }
 
         return { success: true, message: 'Room created successfully!' };
@@ -95,7 +98,8 @@ export default function AddRoomPage() {
             // Validate all rooms have fixedCost > 0
             const invalidRooms = rooms.filter((room) => room.fixedCost <= 0);
             if (invalidRooms.length > 0) {
-                throw new Error('All rooms must have a fixed cost greater than 0');
+                showError('All rooms must have a fixed cost greater than 0');
+                return;
             }
 
             // Create all rooms sequentially
@@ -108,19 +112,19 @@ export default function AddRoomPage() {
                     successCount++;
                 } else {
                     failedCount++;
-                    toast.error(`Failed to create ${room.roomName}: ${result.message}`);
+                    showError(`Failed to create ${room.roomName}: ${result.message}`);
                 }
             }
 
             if (successCount > 0) {
-                toast.success(`Successfully created ${successCount} room(s)`);
+                showSuccess(`Successfully created ${successCount} room(s)`);
             }
 
             if (failedCount === 0) {
                 router.push(`/hostel/${slug}`);
             }
         } catch (error: unknown) {
-            toast.error((error as Error).message || 'Failed to create rooms');
+            showError((error as Error).message || 'Failed to create rooms');
         } finally {
             setSubmitting(false);
         }
