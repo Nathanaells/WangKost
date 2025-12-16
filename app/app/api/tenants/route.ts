@@ -28,8 +28,6 @@ export async function POST(req: NextRequest) {
   try {
     const body: ICreateTenant = await req.json();
 
-    console.log(body.additionalIds);
-
     const id = req.headers.get("x-owner-id");
     if (!id) throw new UnauthorizedError();
 
