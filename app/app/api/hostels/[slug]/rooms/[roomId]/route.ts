@@ -2,7 +2,7 @@ import { BadRequest, NotFoundError, UnauthorizedError } from "@/server/errorHand
 import customError from "@/server/errorHandler/customError";
 import Rent from "@/server/models/Rent";
 import Room from "@/server/models/Room";
-import { tenantCreateSchema } from "@/server/models/Tenant";
+import Tenant, { tenantCreateSchema } from "@/server/models/Tenant";
 import { ITenant } from "@/types/type";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
@@ -18,13 +18,13 @@ export async function GET(req: NextRequest, props: IProps) {
     const roomObjectId = new ObjectId(roomId);
 
     const rent = await Rent.where("roomId", roomObjectId).first();
-    console.log(200,"GETTING RENT",rent)
+    console.log(200, "GETTING RENT", rent)
     const room = await Room.where("_id", roomObjectId).first();
 
     // Validation check
     if (!room) throw new NotFoundError("Room not found");
 
-    
+
     if (!rent) {
       return NextResponse.json(room)
     }
@@ -77,41 +77,31 @@ export async function DELETE(req: NextRequest, props: IProps) {
   }
 }
 
-// ADD TENANT AND CREATE RENT AUTOMATICALLY
+// ADD TENANT - Redirects to /api/tenants
 export async function POST(req: NextRequest, props: IProps) {
   try {
-    // Validations
-    const id = req.headers.get("x-owner-id");
-    if (!id) throw new UnauthorizedError();
-    const _id = new ObjectId(id);
-
-    // Get roomId
     const { roomId } = await props.params;
-    const roomObjectId = new ObjectId(roomId);
+    const body = await req.json();
 
-    // Get tenant input data from body
-    const body: ITenant = await req.json();
-    
-    // Attempt to find room
-    const room = await Room.where("_id", roomObjectId).first();
-    if (!room) throw new NotFoundError("Room not found");
+    // Add roomId to body and forward to tenants endpoint
+    const tenantData = {
+      ...body,
+      roomId: roomId
+    };
 
-    // Check if room is available.
-    if (!room?.isAvailable) throw new BadRequest("Room is not available")
-    
-
-
-    // Parse and body validation
-    tenantCreateSchema.parse({
-      name: body.name,
-      email: body.email,
-      birthday: body.birthday,
-      phoneNumber: body.phoneNumber,
-      isActive: true
+    // Forward request to tenants endpoint
+    const baseUrl = req.nextUrl.origin;
+    const response = await fetch(`${baseUrl}/api/tenants`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-owner-id': req.headers.get('x-owner-id') || ''
+      },
+      body: JSON.stringify(tenantData)
     });
-    //! INCOMPLETE
-    // Expected: When we POST in roomId we add tenant while simultaneously creating a new Rent.
 
+    const data = await response.json();
+    return NextResponse.json(data, { status: response.status });
   } catch (error) {
     const { message, status } = customError(error);
     return NextResponse.json({ message }, { status });
