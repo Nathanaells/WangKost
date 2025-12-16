@@ -32,7 +32,7 @@ export async function proxy(req: NextRequest) {
       const isProtected = protectedPaths.some((protectedPath) =>
         path.startsWith(protectedPath)
       );
-
+      // console.log('PROXY, PRO', 200)
       if (isProtected) {
         const cookieStore = await cookies();
         const token = cookieStore.get("access_token");
@@ -47,7 +47,7 @@ export async function proxy(req: NextRequest) {
         if (!owner) throw new UnauthorizedError();
 
         const newHeaders = new Headers(req.headers);
-
+        // console.log(owner, 'PROXY', 200)
         newHeaders.set("x-owner-id", owner._id.toString());
         newHeaders.set("x-owner-phoneNumber", owner.phoneNumber);
 
