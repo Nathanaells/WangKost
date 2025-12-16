@@ -88,7 +88,6 @@ export interface IRentObject<T = never> {
   additionals?: T;
 }
 
-// Type alias untuk rent dengan additionals
 export type IRentWithAdditionals = IRentObject<IRespAdditional[]>;
 
 export interface IRentAdditional {

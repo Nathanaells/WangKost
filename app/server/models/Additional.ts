@@ -14,7 +14,7 @@ export default class Additional extends Model<IAdditional> {
   public static $schema: IAdditional;
   protected $collection: string = "additionals";
 
-  public rent() {
+  public rents() {
     return this.belongsToMany(Rent);
   }
 }
