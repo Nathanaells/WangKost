@@ -33,3 +33,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message }, { status });
   }
 }
+
+export async function GET(req: NextRequest) {
+  try {
+    const transactions = await Transaction.get()
+
+
+    // Should return a list of transactions of Owner WITH pagination...
+    return NextResponse.json({
+      transactions
+    })
+  } catch (error) {
+    const { message, status } = customError(error);
+    return NextResponse.json({ message }, { status });
+  }
+}
