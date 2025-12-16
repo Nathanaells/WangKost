@@ -8,6 +8,28 @@ import Hostel from '@/server/models/Hostel';
 import Room from '@/server/models/Room';
 import Additional from '@/server/models/Additional';
 import { ObjectId } from 'mongodb';
+import type { IHostel, IRoom, ITenant, IRent, IRespAdditional } from '@/types/type';
+
+interface HostelWithId extends IHostel {
+    _id: ObjectId;
+}
+
+interface RoomWithId extends IRoom {
+    _id: ObjectId;
+}
+
+interface TenantWithId extends ITenant {
+    _id: ObjectId;
+}
+
+interface RentWithId extends IRent {
+    _id: ObjectId;
+}
+
+interface RoomWithHostelInfo extends RoomWithId {
+    hostelName: string;
+    hostelSlug: string;
+}
 
 export async function fetchTransactionsData() {
     try {
@@ -22,32 +44,32 @@ export async function fetchTransactionsData() {
         const ownerId = new ObjectId(decoded.userId);
 
         // Fetch hostels owned by this owner
-        const hostels = await Hostel.where('ownerId', ownerId).get();
+        const hostels = (await Hostel.where('ownerId', ownerId).get()) as HostelWithId[];
 
         if (hostels.length === 0) {
             return { success: true, payments: [] };
         }
 
-        const hostelIds = hostels.map((h: any) => new ObjectId(h._id));
+        const hostelIds = hostels.map((h) => new ObjectId(h._id));
 
         // Fetch rooms for these hostels
-        const rooms = await Room.whereIn('hostelId', hostelIds).get();
+        const rooms = (await Room.whereIn('hostelId', hostelIds).get()) as RoomWithId[];
 
         if (rooms.length === 0) {
             return { success: true, payments: [] };
         }
 
-        const roomIds = rooms.map((r: any) => new ObjectId(r._id));
+        const roomIds = rooms.map((r) => new ObjectId(r._id));
 
         // Create hostel map
-        const hostelMap = new Map();
-        hostels.forEach((hostel: any) => {
+        const hostelMap = new Map<string, HostelWithId>();
+        hostels.forEach((hostel) => {
             hostelMap.set(hostel._id.toString(), hostel);
         });
 
         // Create room map with hostel info
-        const roomMap = new Map();
-        rooms.forEach((room: any) => {
+        const roomMap = new Map<string, RoomWithHostelInfo>();
+        rooms.forEach((room) => {
             const hostel = hostelMap.get(room.hostelId.toString());
             roomMap.set(room._id.toString(), {
                 ...room,
@@ -57,44 +79,66 @@ export async function fetchTransactionsData() {
         });
 
         // Fetch rents for these rooms
-        const rents = await Rent.whereIn('roomId', roomIds).get();
+        const rents = (await Rent.whereIn('roomId', roomIds).get()) as RentWithId[];
 
         if (rents.length === 0) {
             return { success: true, payments: [] };
         }
 
         // Fetch all tenants
-        const tenantIds = rents.map((r: any) => new ObjectId(r.tenantId));
-        const tenants = await Tenant.whereIn('_id', tenantIds).get();
+        const tenantIds = rents.map((r) => new ObjectId(r.tenantId));
+        const tenants = (await Tenant.whereIn('_id', tenantIds).get()) as TenantWithId[];
 
         // Create tenant map
-        const tenantMap = new Map();
-        tenants.forEach((tenant: any) => {
+        const tenantMap = new Map<string, TenantWithId>();
+        tenants.forEach((tenant) => {
             tenantMap.set(tenant._id.toString(), tenant);
         });
 
-        // Fetch additionals for each rent
-        const rentAdditionals = new Map();
+        // Fetch additionals for each rent using direct database query
+        const rentAdditionals = new Map<string, IRespAdditional[]>();
         for (const rent of rents) {
             try {
-                const additionals = await Additional.whereHas('rents', (query: any) => {
-                    query.where('_id', new ObjectId(rent._id));
-                }).get();
+                const rentObjectId = new ObjectId(rent._id);
 
-                rentAdditionals.set(rent._id.toString(), additionals);
+                // Query pivot table and join with additionals
+                const DB = (await import('mongoloquent')).DB;
+
+                const result = await DB.collection('rents')
+                    .raw({
+                        $match: {
+                            _id: rentObjectId,
+                        },
+                    })
+                    .lookup({
+                        from: 'additional_rent',
+                        localField: '_id',
+                        foreignField: 'rent_id',
+                        as: 'rentAdditional',
+                    })
+                    .lookup({
+                        from: 'additionals',
+                        localField: 'rentAdditional.additional_id',
+                        foreignField: '_id',
+                        as: 'additionals',
+                    })
+                    .first();
+
+                rentAdditionals.set(rent._id.toString(), result?.additionals || []);
             } catch (error) {
+                console.error('Error fetching additionals for rent:', error);
                 rentAdditionals.set(rent._id.toString(), []);
             }
         }
 
         // Map rents to payment format
-        const mappedPayments = rents.map((rent: any) => {
+        const mappedPayments = rents.map((rent) => {
             const tenant = tenantMap.get(rent.tenantId.toString());
             const room = roomMap.get(rent.roomId.toString());
             const additionals = rentAdditionals.get(rent._id.toString()) || [];
 
             // Calculate total amount (fixed cost + additionals)
-            const additionalTotal = additionals.reduce((sum: number, add: any) => sum + (add.price || 0), 0);
+            const additionalTotal = additionals.reduce((sum: number, add) => sum + (add.price || 0), 0);
             const totalAmount = (rent.price || 0) + additionalTotal;
 
             // Get month from joinAt

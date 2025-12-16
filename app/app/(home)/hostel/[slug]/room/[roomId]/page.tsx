@@ -250,15 +250,16 @@ export default async function RoomDetailPage(props: IProps) {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                         <div className="bg-blue-50 p-4 rounded-lg">
                             <div className="text-blue-600 text-sm font-medium mb-1">Fixed Cost (per month)</div>
-                            <div className="text-2xl font-bold text-gray-900">
-                                Rp {(latestTransaction?.totalPrice || room.fixedCost).toLocaleString('id-ID')}
-                            </div>
+                            <div className="text-2xl font-bold text-gray-900">Rp {room.fixedCost.toLocaleString('id-ID')}</div>
                         </div>
                         {rent && (
                             <div className="bg-purple-50 p-4 rounded-lg">
                                 <div className="text-purple-600 text-sm font-medium mb-1">Current Rent Price</div>
                                 <div className="text-2xl font-bold text-gray-900">
-                                    Rp {(latestTransaction?.totalPrice || rent.price).toLocaleString('id-ID')}
+                                    Rp{' '}
+                                    {(rent.price + (rent.additionals?.reduce((sum, add) => sum + add.price, 0) || 0)).toLocaleString(
+                                        'id-ID'
+                                    )}
                                 </div>
                             </div>
                         )}
