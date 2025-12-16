@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import { IMongoloquentSchema, IMongoloquentTimestamps } from "mongoloquent";
 import { int } from "zod";
 
 export enum TransactionStatus {
@@ -40,7 +41,7 @@ export interface IOwner {
   phoneNumber: string;
 }
 
-export interface IRoom {
+export interface IRoom extends IMongoloquentSchema, IMongoloquentTimestamps{
   fixedCost: number;
   isAvailable: boolean;
   hostelId: ObjectId;

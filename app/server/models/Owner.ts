@@ -6,12 +6,15 @@ import {
 import z from "zod";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import Hostel from "./Hostel";
+import Room from "./Room";
+import { IRoom } from "@/types/type";
 
 interface IOwner extends IMongoloquentSchema, IMongoloquentTimestamps {
   name: string;
   email: string;
   password: string;
   phoneNumber: string;
+  rooms?: IRoom[]
 }
 
 export const ownerRegisterSchema = z.object({
@@ -40,5 +43,8 @@ export default class Owner extends Model<IOwner> {
 
   public hostels() {
     return this.hasMany(Hostel);
+  }
+  public rooms() {
+    return this.hasManyThrough(Room, Hostel, 'ownerId', 'hostelId','_id','_id')
   }
 }

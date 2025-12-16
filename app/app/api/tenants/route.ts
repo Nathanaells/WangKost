@@ -10,26 +10,28 @@ import { ICreateTenant, ITenant } from "@/types/type";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 import { DB } from "mongoloquent";
-import Hostel from "@/server/models/Hostel";
+import Owner from "@/server/models/Owner";
 
 export async function GET(req: NextRequest) {
   try {
     const id = req.headers.get("x-owner-id");
+    // console.log(id)
     if (!id) throw new UnauthorizedError();
     const ownerId = new ObjectId(id)
-    console.log(ownerId)
+    // console.log(ownerId)
 
-    // Get hostels.
-    const hostel = await Hostel.where('ownerId', ownerId).get()
-    // We're suppose to get list of tenants of owner.
-    // Tenants -> Rent -> Room -> Hostel -> Owner
-    // const tenants = await Room.with('hostel').where('hostel.ownerId', ownerId).get()
-    const tenants = await Tenant.with({
-      "rent":['room'],
-    }).get()
-
-
-
+    const owner = await Owner.with('rooms').where('_id', ownerId).first()
+    // console.log(owner)
+    const roomIds = owner?.rooms?.map(room => room._id)
+    const rooms = await Room.whereIn('_id', roomIds as ObjectId[]).with('tenants').get()
+    const tenants  : any[] = []
+    rooms.forEach(room => {
+      room.tenants.forEach(tenant => {
+        tenants.push(tenant)
+      })
+    })
+    // console.log(roomIds)
+    // console.log(rooms)
     // console.log(tenants)
     return NextResponse.json(tenants);
   } catch (error: unknown) {
