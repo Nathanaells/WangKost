@@ -165,9 +165,18 @@ async function getLatestTransaction(roomId: string): Promise<ITransaction | null
         const cookieStore = await cookies();
         const token = cookieStore.get('access_token');
 
-        const response = await fetch(`${url}/api/transaction`, {
+        if (!token) {
+            return null;
+        }
+
+        // Decode token to get owner ID
+        const jwt = await import('jsonwebtoken');
+        const decoded = jwt.verify(token.value, process.env.JWT_SECRET as string) as { userId: string };
+
+        const response = await fetch(`${url}/api/transaction?limit=1000`, {
             headers: {
-                Cookie: `access_token=${token?.value}`,
+                Cookie: `access_token=${token.value}`,
+                'x-owner-id': decoded.userId,
             },
             cache: 'no-store',
         });
@@ -176,7 +185,8 @@ async function getLatestTransaction(roomId: string): Promise<ITransaction | null
             return null;
         }
 
-        const transactions: ITransaction[] = await response.json();
+        const data = await response.json();
+        const transactions: ITransaction[] = data.transactions || [];
 
         // Filter transactions for this room and sort by createdAt to get the latest
         const roomTransactions = transactions

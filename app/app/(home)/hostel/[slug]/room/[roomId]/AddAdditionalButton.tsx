@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { showError, showSuccess } from '@/components/toast';
 import { addAdditionalToRent, createCustomAdditional, fetchAdditionals } from './actions';
@@ -29,6 +29,7 @@ export default function AddAdditionalButton({ rentId, allAdditionals, currentAdd
     const [showDropdown, setShowDropdown] = useState(false);
     const router = useRouter();
 
+    
     // Filter out additionals that are already added
     const currentAdditionalIds = currentAdditionals.map((a) => a._id);
     const allAvailableAdditionals = [...allAdditionals, ...localAdditionals];
@@ -157,6 +158,10 @@ export default function AddAdditionalButton({ rentId, allAdditionals, currentAdd
         setShowDropdown(false);
         setCustomAdditional({ name: '', price: 0 });
     };
+
+    useEffect(() => {
+       console.log(selectedAdditionalIds)
+    }, [selectedAdditionalIds]);
 
     return (
         <>
@@ -374,3 +379,4 @@ export default function AddAdditionalButton({ rentId, allAdditionals, currentAdd
         </>
     );
 }
+
