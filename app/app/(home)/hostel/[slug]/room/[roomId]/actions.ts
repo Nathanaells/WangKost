@@ -17,30 +17,38 @@ export async function addAdditionalToRent(rentId: string, additionalId: string, 
             };
         }
 
-        // Verify token and get owner ID
-        const payload = verifyToken(token.value);
-        const ownerId = payload.userId;
+        // Verify token to ensure authentication
+        verifyToken(token.value);
 
-        const response = await fetch(`${url}/api/rents/${rentId}/rentAdditionals`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-owner-id': ownerId,
-            },
-            cache: 'no-store',
-            body: JSON.stringify({
-                additionalId,
-            }),
-        });
+        // Import DB and perform direct database operation
+        const { DB } = await import('mongoloquent');
+        const { ObjectId } = await import('mongodb');
+        const Rent = (await import('@/server/models/Rent')).default;
+        const Additional = (await import('@/server/models/Additional')).default;
 
-        const data = await response.json();
-
-        if (!response.ok) {
+        // Check if rent exists
+        const rent = await Rent.find(rentId);
+        if (!rent) {
             return {
                 success: false,
-                message: data.message || 'Failed to add additional',
+                message: 'Rent not found',
             };
         }
+
+        // Check if additional exists
+        const additional = await Additional.find(additionalId);
+        if (!additional) {
+            return {
+                success: false,
+                message: 'Additional not found',
+            };
+        }
+
+        // Insert into pivot table directly
+        await DB.collection('additional_rent').create({
+            rent_id: new ObjectId(rentId),
+            additional_id: new ObjectId(additionalId),
+        });
 
         // Revalidate the entire hostel route to refresh all related pages
         if (slug && roomIdParam) {
@@ -73,37 +81,22 @@ export async function createCustomAdditional(name: string, price: number) {
             };
         }
 
-        // Verify token and get owner ID
-        const payload = verifyToken(token.value);
-        const ownerId = payload.userId;
+        // Verify token to ensure authentication
+        verifyToken(token.value);
 
-        const response = await fetch(`${url}/api/additionals`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-owner-id': ownerId,
-            },
-            cache: 'no-store',
-            body: JSON.stringify({ name, price }),
-        });
+        // Import Additional model and create directly
+        const Additional = (await import('@/server/models/Additional')).default;
 
-        const data = await response.json();
-
-        if (!response.ok) {
-            return {
-                success: false,
-                message: data.message || 'Failed to create additional',
-            };
-        }
+        const additional = await Additional.create({ name, price });
 
         return {
             success: true,
-            data,
+            additionalId: additional._id,
         };
     } catch (error) {
         return {
             success: false,
-            message: error instanceof Error ? error.message : 'Network error',
+            message: error instanceof Error ? error.message : 'Failed to create additional',
         };
     }
 }
