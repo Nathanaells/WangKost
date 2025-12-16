@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
       password: body.password,
       phoneNumber: body.phoneNumber,
     });
-    console.log(body)
+    
     // DUPLICATE CHECK
     const existingEmail = await Owner.where("email", body.email).first();
     if (existingEmail) {
