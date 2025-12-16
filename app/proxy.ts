@@ -10,11 +10,7 @@ export async function proxy(req: NextRequest) {
   try {
     const path = req.nextUrl.pathname;
 
-    const publicPaths = [
-      "/api/rents",
-      "/api/transaction",
-      "/api/tenants/[tenantId]",
-    ];
+    const publicPaths = ["/api/rents", "/api/transaction"];
 
     // Check if path is public
     const isPublic = publicPaths.some((publicPath) =>
@@ -26,13 +22,13 @@ export async function proxy(req: NextRequest) {
       return NextResponse.next();
     }
 
-    const protectedPaths = ["/api/hostels", "/api/additionals"];
+    const protectedPaths = ["/api/hostels", "/api/additionals", "/api/tenants"];
 
     if (path.startsWith("/api")) {
       const isProtected = protectedPaths.some((protectedPath) =>
         path.startsWith(protectedPath)
       );
-
+      // console.log('PROXY, PRO', 200)
       if (isProtected) {
         const cookieStore = await cookies();
         const token = cookieStore.get("access_token");
@@ -47,7 +43,7 @@ export async function proxy(req: NextRequest) {
         if (!owner) throw new UnauthorizedError();
 
         const newHeaders = new Headers(req.headers);
-
+        // console.log(owner, 'PROXY', 200)
         newHeaders.set("x-owner-id", owner._id.toString());
         newHeaders.set("x-owner-phoneNumber", owner.phoneNumber);
 
