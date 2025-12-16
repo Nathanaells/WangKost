@@ -23,7 +23,7 @@ export async function proxy(req: NextRequest) {
     const protectedPaths = [
       "/api/hostels",
       "/api/additionals",
-      "/api/tenants/",
+      "/api/tenants",
       "/api/transaction",
     ];
 
@@ -31,6 +31,7 @@ export async function proxy(req: NextRequest) {
       const isProtected = protectedPaths.some((protectedPath) =>
         path.startsWith(protectedPath)
       );
+
       if (isProtected) {
         const cookieStore = await cookies();
         const token = cookieStore.get("access_token");

@@ -25,6 +25,55 @@ interface IProps {
   searchParams: Promise<{ [keyword: string]: string | string[] | undefined }>;
 }
 
+// Interface untuk match stage di aggregation
+interface IMatchStage {
+  "hostel.ownerId": ObjectId;
+  status?: string;
+}
+
+// Interface untuk Tenant
+interface ITenant {
+  _id: ObjectId;
+  name: string;
+  email?: string;
+  phone?: string;
+}
+
+// Interface untuk Hostel
+interface IHostel {
+  _id: ObjectId;
+  name: string;
+  address?: string;
+  ownerId: ObjectId;
+}
+
+// Interface untuk response data transaction
+interface ITransactionResponse {
+  _id: ObjectId;
+  tenantId: ObjectId;
+  rentId: ObjectId;
+  amount: number;
+  status: string;
+  dueDate: Date;
+  paidAt?: Date;
+  midTransTransactionId?: string;
+  midTransOrderId?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  tenant?: ITenant;
+  hostel?: IHostel;
+}
+
+// Interface untuk single result dari aggregation
+interface IAggregationResult {
+  data: ITransactionResponse[];
+  totalCount: Array<{ count: number }>;
+}
+
+interface IProps {
+  searchParams: Promise<{ [keyword: string]: string | string[] | undefined }>;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body: ITransaction = await req.json();
@@ -106,6 +155,16 @@ export async function GET(req: NextRequest) {
       },
       { $unwind: "$hostel" },
 
+      {
+        $lookup: {
+          from: "tenants",
+          localField: "tenantId",
+          foreignField: "_id",
+          as: "tenant",
+        },
+      },
+      { $unwind: "$tenant" },
+
       { $match: matchStage },
 
       { $sort: { createdAt: -1 } },
@@ -128,6 +187,12 @@ export async function GET(req: NextRequest) {
                 midTransOrderId: 1,
                 createdAt: 1,
                 updatedAt: 1,
+                tenant: {
+                  name: 1,
+                },
+                hostel: {
+                  name: 1,
+                },
               },
             },
           ],
