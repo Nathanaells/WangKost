@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { fetchTransactionsData } from './actions';
+import { showError } from '@/components/toast';
 
 interface IPayment {
     _id: string;
@@ -14,7 +15,6 @@ interface IPayment {
     paidDate?: string;
     month: string;
 }
-
 
 export default function FeenDues() {
     const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'unpaid' | 'pending'>('all');
@@ -29,14 +29,14 @@ export default function FeenDues() {
                 const result = await fetchTransactionsData();
 
                 if (!result.success) {
-                    console.error('Failed to fetch transactions:', result.message);
+                    showError(result.message || 'Failed to fetch transactions');
                     setPayments([]);
                     return;
                 }
 
                 setPayments(result.payments || []);
             } catch (error) {
-                console.error('Error fetching data:', error);
+                showError('Failed to load payment data');
                 setPayments([]);
             } finally {
                 setLoading(false);
