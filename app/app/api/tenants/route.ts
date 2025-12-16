@@ -28,6 +28,8 @@ export async function POST(req: NextRequest) {
   try {
     const body: ICreateTenant = await req.json();
 
+    console.log(body.additionalIds);
+
     const id = req.headers.get("x-owner-id");
     if (!id) throw new UnauthorizedError();
 
@@ -79,19 +81,28 @@ export async function POST(req: NextRequest) {
       )) as Rent;
 
       if (body.additionalIds && body.additionalIds.length > 0) {
-        const rentInstance = await Rent.find(createdRent._id);
+        const additionalObjectIds = body.additionalIds.map(
+          (id) => new ObjectId(id)
+        );
+        console.log(additionalObjectIds, "<<<<<<<<<<<<");
 
-        if (rentInstance) {
-          const additionalObjectIds = body.additionalIds.map(
-            (id) => new ObjectId(id)
-          );
-          await rentInstance.additionals().attach(additionalObjectIds);
-        }
+        // Insert into pivot table directly within the transaction
+        const pivotDocuments = additionalObjectIds.map((additionalId) => ({
+          rent_id: createdRent._id,
+          additional_id: additionalId,
+        }));
+
+        await DB.collection("additional_rent").insertMany(pivotDocuments, {
+          session,
+        });
       }
 
-      await Room.where("_id", body.roomId).update({
-        isAvailable: false,
-      });
+      await Room.where("_id", body.roomId).update(
+        {
+          isAvailable: false,
+        },
+        { session }
+      );
     });
 
     return NextResponse.json({ message: "Tenant created" }, { status: 201 });
