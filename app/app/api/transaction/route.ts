@@ -47,13 +47,17 @@ export async function GET(req: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Get total count
-    const total = await Transaction.with('rent').with('room').with('hostel').where('hostel.ownerId', _id).count();
+    const total = await Transaction.with("rent")
+      .with("room")
+      .with("hostel")
+      .where("hostel.ownerId", _id)
+      .count();
 
     // Get paginated transactions
-    const transactions = await Transaction.with('rent')
-      .with('room')
-      .with('hostel')
-      .where('hostel.ownerId', _id)
+    const transactions = await Transaction.with("rent")
+      .with("room")
+      .with("hostel")
+      .where("hostel.ownerId", _id)
       .skip(skip)
       .take(limit)
       .get();
@@ -65,8 +69,8 @@ export async function GET(req: NextRequest) {
         limit,
         total,
         totalPages: Math.ceil(total / limit),
-      }
-    })
+      },
+    });
   } catch (error) {
     const { message, status } = customError(error);
     return NextResponse.json({ message }, { status });

@@ -10,19 +10,22 @@ export async function proxy(req: NextRequest) {
   try {
     const path = req.nextUrl.pathname;
 
-    const publicPaths = ["/api/rents", "/api/transaction"];
+    const publicPaths = ["/api/rents"];
 
-    // Check if path is public
     const isPublic = publicPaths.some((publicPath) =>
       path.startsWith(publicPath)
     );
 
-    // If public path, skip authentication
     if (isPublic) {
       return NextResponse.next();
     }
 
-    const protectedPaths = ["/api/hostels", "/api/additionals", "/api/tenants"];
+    const protectedPaths = [
+      "/api/hostels",
+      "/api/additionals",
+      "/api/tenants/",
+      "/api/transaction",
+    ];
 
     if (path.startsWith("/api")) {
       const isProtected = protectedPaths.some((protectedPath) =>

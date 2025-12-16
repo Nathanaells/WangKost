@@ -30,7 +30,9 @@ export async function GET(req: NextRequest, props: IProps) {
 
 export async function PATCH(req: NextRequest, props: IProps) {
   try {
+    console.log("TES");
     const body = await req.json();
+    console.log(body, "<<< BODY");
     const id = req.headers.get("x-owner-id");
     if (!id) throw new UnauthorizedError();
 
