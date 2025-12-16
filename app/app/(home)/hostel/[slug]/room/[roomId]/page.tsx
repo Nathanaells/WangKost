@@ -3,6 +3,8 @@ import { cookies } from 'next/headers';
 import Link from 'next/link';
 import AddTenantButton from './AddTenantButton';
 import AddAdditionalButton from './AddAdditionalButton';
+import Rent from '@/server/models/Rent';
+import { ObjectId } from 'mongodb';
 
 interface IAdditional {
     _id: string;
@@ -38,6 +40,15 @@ interface IRoom {
     rent?: IRent;
 }
 
+interface ITransaction {
+    _id: string;
+    roomId: string;
+    tenantId: string;
+    totalPrice: number;
+    status: string;
+    createdAt: string;
+}
+
 interface IProps {
     params: Promise<{ slug: string; roomId: string }>;
 }
@@ -68,26 +79,28 @@ async function getRoomDetail(slug: string, roomId: string): Promise<IRoom | null
 
 async function getRentByRoomId(roomId: string): Promise<IRent | null> {
     try {
+        const roomObjectId = new ObjectId(roomId);
+
+        // Query database directly using the Rent model
+        const rentData = await Rent.where('roomId', roomObjectId).first();
+
+        if (!rentData) {
+            return null;
+        }
+
+        // Create rent object with proper typing
+        const rent: IRent = {
+            _id: rentData._id.toString(),
+            price: rentData.price,
+            roomId: rentData.roomId.toString(),
+            tenantId: rentData.tenantId.toString(),
+            joinAt: rentData.joinAt,
+            leaveAt: rentData.leaveAt,
+            additionals: [],
+        };
+
         const cookieStore = await cookies();
         const token = cookieStore.get('access_token');
-
-        const response = await fetch(`${url}/api/rents`, {
-            headers: {
-                Cookie: `access_token=${token?.value}`,
-            },
-            cache: 'no-store',
-        });
-
-        if (!response.ok) {
-            return null;
-        }
-
-        const rents: IRent[] = await response.json();
-        const rent = rents.find((rent) => rent.roomId.toString() === roomId);
-
-        if (!rent) {
-            return null;
-        }
 
         // Fetch tenant data
         const tenantResponse = await fetch(`${url}/api/tenants/${rent.tenantId}`, {
@@ -101,17 +114,19 @@ async function getRentByRoomId(roomId: string): Promise<IRent | null> {
             rent.tenant = await tenantResponse.json();
         }
 
-        // Fetch rent additionals
-        const additionalsResponse = await fetch(`${url}/api/rents/${rent._id}/rentAdditionals`, {
-            headers: {
-                Cookie: `access_token=${token?.value}`,
-            },
-            cache: 'no-store',
-        });
+        // Fetch rent additionals using GET endpoint which doesn't require auth
+        try {
+            const additionalsResponse = await fetch(`${url}/api/rents/${rent._id}/rentAdditionals`, {
+                cache: 'no-store',
+            });
 
-        if (additionalsResponse.ok) {
-            const additionalData = await additionalsResponse.json();
-            rent.additionals = additionalData;
+            if (additionalsResponse.ok) {
+                const rentWithAdditionals = await additionalsResponse.json();
+                rent.additionals = Array.isArray(rentWithAdditionals.additionals) ? rentWithAdditionals.additionals : [];
+            }
+        } catch (error) {
+            console.error('Error fetching rent additionals:', error);
+            rent.additionals = [];
         }
 
         return rent;
@@ -144,12 +159,43 @@ async function getAdditionals(): Promise<IAdditional[]> {
     }
 }
 
+async function getLatestTransaction(roomId: string): Promise<ITransaction | null> {
+    try {
+        const cookieStore = await cookies();
+        const token = cookieStore.get('access_token');
+
+        const response = await fetch(`${url}/api/transaction`, {
+            headers: {
+                Cookie: `access_token=${token?.value}`,
+            },
+            cache: 'no-store',
+        });
+
+        if (!response.ok) {
+            return null;
+        }
+
+        const transactions: ITransaction[] = await response.json();
+
+        // Filter transactions for this room and sort by createdAt to get the latest
+        const roomTransactions = transactions
+            .filter((t) => t.roomId?.toString() === roomId)
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+        return roomTransactions.length > 0 ? roomTransactions[0] : null;
+    } catch (error) {
+        console.error('Error fetching transaction:', error);
+        return null;
+    }
+}
+
 export default async function RoomDetailPage(props: IProps) {
     const { slug, roomId } = await props.params;
 
     const room = await getRoomDetail(slug, roomId);
     const rent = await getRentByRoomId(roomId);
     const allAdditionals = await getAdditionals();
+    const latestTransaction = await getLatestTransaction(roomId);
 
     if (!room) {
         return (
@@ -204,12 +250,16 @@ export default async function RoomDetailPage(props: IProps) {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                         <div className="bg-blue-50 p-4 rounded-lg">
                             <div className="text-blue-600 text-sm font-medium mb-1">Fixed Cost (per month)</div>
-                            <div className="text-2xl font-bold text-gray-900">Rp {room.fixedCost.toLocaleString('id-ID')}</div>
+                            <div className="text-2xl font-bold text-gray-900">
+                                Rp {(latestTransaction?.totalPrice || room.fixedCost).toLocaleString('id-ID')}
+                            </div>
                         </div>
                         {rent && (
                             <div className="bg-purple-50 p-4 rounded-lg">
                                 <div className="text-purple-600 text-sm font-medium mb-1">Current Rent Price</div>
-                                <div className="text-2xl font-bold text-gray-900">Rp {rent.price.toLocaleString('id-ID')}</div>
+                                <div className="text-2xl font-bold text-gray-900">
+                                    Rp {(latestTransaction?.totalPrice || rent.price).toLocaleString('id-ID')}
+                                </div>
                             </div>
                         )}
                     </div>
