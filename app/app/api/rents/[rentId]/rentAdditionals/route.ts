@@ -23,11 +23,15 @@ export async function GET(req: NextRequest, props: IProps) {
     const { rentId } = await props.params;
     const rentObjectId = new ObjectId(rentId);
 
-    // Check if rent exists
     const rentExists = await Rent.find(rentObjectId);
     if (!rentExists) throw new NotFoundError("Rent not found");
 
-    // Aggregate rent with additionals - menggunakan generic type
+    // const rent = await Rent.where("_id", rentObjectId)
+    //   .with("additionalRents.additional")
+    //   .first();
+
+    // if (!rent) throw new NotFoundError("Rent not found");
+
     const rentWithAdditionals = await DB.collection<
       IRentObject<IRespAdditional[]>
     >("rents")
@@ -48,16 +52,20 @@ export async function GET(req: NextRequest, props: IProps) {
         foreignField: "_id",
         as: "additionals",
       })
-      .raw({
-        $unset: ["createdAt", "updatedAt", "rentAdditional"],
-      })
+      .raw([
+        { $unset: ["createdAt", "updatedAt"] },
+        {
+          $project: {
+            rentAdditional: 0,
+          },
+        },
+      ])
       .first();
 
     if (!rentWithAdditionals) {
       throw new NotFoundError("Rent not found");
     }
 
-    // Response dengan type IRentWithAdditionals
     const response: IRentWithAdditionals = {
       _id: rentWithAdditionals._id,
       roomId: rentWithAdditionals.roomId,
