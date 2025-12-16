@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 "use client";
 import url from "@/components/constant";
 import { showError, showSuccess } from "@/components/toast";
