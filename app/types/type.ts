@@ -54,6 +54,15 @@ export interface ITenant {
   isActive: boolean;
 }
 
+export interface IRespTenant {
+  _id: ObjectId;
+  name: string;
+  email: string;
+  birthday: Date;
+  phoneNumber: string;
+  isActive: boolean;
+}
+
 export interface ICreateTenant {
   name: string;
   email: string;

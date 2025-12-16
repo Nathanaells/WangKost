@@ -13,9 +13,6 @@ interface IProps {
 
 export async function GET(req: NextRequest, props: IProps) {
   try {
-    const id = req.headers.get("x-owner-id");
-    if (!id) throw new UnauthorizedError();
-
     const { tenantId } = await props.params;
     const tenantObjectId = new ObjectId(tenantId);
 
