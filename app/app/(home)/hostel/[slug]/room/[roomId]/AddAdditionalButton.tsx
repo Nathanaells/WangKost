@@ -159,10 +159,6 @@ export default function AddAdditionalButton({ rentId, allAdditionals, currentAdd
         setCustomAdditional({ name: '', price: 0 });
     };
 
-    useEffect(() => {
-       console.log(selectedAdditionalIds)
-    }, [selectedAdditionalIds]);
-
     return (
         <>
             <button
