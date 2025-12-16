@@ -17,7 +17,9 @@ interface IOwner extends IMongoloquentSchema, IMongoloquentTimestamps {
 export const ownerRegisterSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string()
+    .min(6, "Password must be at least 6 characters")
+    .refine((value) => value.trim().length > 0, "Password cannot be only whitespace"),
   phoneNumber: z.string().refine((value) => {
     const phone = parsePhoneNumberFromString(value, "ID");
     return phone?.isValid();

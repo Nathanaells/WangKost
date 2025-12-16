@@ -18,11 +18,18 @@ export async function GET(req: NextRequest) {
     if (!id) throw new UnauthorizedError();
     const ownerId = new ObjectId(id)
     console.log(ownerId)
+
+    // Get hostels.
+    const hostel = await Hostel.where('ownerId', ownerId).get()
     // We're suppose to get list of tenants of owner.
     // Tenants -> Rent -> Room -> Hostel -> Owner
-    const hostel = await Hostel.with('tenants').where('ownerId', ownerId).get()
-    console.log(hostel)
-    const tenants = await Tenant.with('rent').with('room').get();
+    // const tenants = await Room.with('hostel').where('hostel.ownerId', ownerId).get()
+    const tenants = await Tenant.with({
+      "rent":['room'],
+    }).get()
+
+
+
     // console.log(tenants)
     return NextResponse.json(tenants);
   } catch (error: unknown) {
