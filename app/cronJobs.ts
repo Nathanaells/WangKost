@@ -10,6 +10,7 @@ import {
 import cron from "node-cron";
 import Queue from "bull";
 import dayjs from "dayjs";
+import Tenant from "./server/models/Tenant";
 
 const midtransSecret: string = process.env.MIDTRANS_SERVER_KEY as string;
 const midtransApiUrl: string = process.env.MIDTRANS_API_URL as string;
@@ -32,15 +33,22 @@ rentQueue.process(async function (job, done) {
 
     const rentData: IRentWithAdditionals = await rentResp.json();
 
-    const respTenant = await fetch(
-      `http://localhost:3000/api/tenants/${rentData.tenantId}`
-    );
+    console.log(rentData, "<<< RENT DATA");
 
-    if (!respTenant) {
-      throw new Error("Failed to get Tenant");
+    const tenant = await Tenant.where("_id", rentData.tenantId).first();
+
+    console.log(tenant, "<<< TENANT");
+    if (!tenant) {
+      throw new Error(`Tenant not found for rent ${rentId}`);
     }
-    const tenant: IRespTenant = await respTenant.json();
-    console.log(tenant, "INI TENANT!!!!!");
+    // const respTenant = await fetch(
+    //   `http://localhost:3000/api/tenants/${rentData.tenantId}`
+    // );
+
+    // if (!respTenant) {
+    //   throw new Error("Failed to get Tenant");
+    // }
+    // const tenant: IRespTenant = await respTenant.json();
 
     let additionalTotal = 0;
     if (rentData.additionals && rentData.additionals.length > 0) {
@@ -51,8 +59,7 @@ rentQueue.process(async function (job, done) {
 
     const totalAmount = rentData.price + additionalTotal;
 
-    const joinAtDate = dayjs(rentData.joinAt);
-    const dueDate = joinAtDate.add(1, "month").toDate();
+    const dueDate = dayjs(rentData.joinAt);
 
     const transactionResp = await fetch(
       "http://localhost:3000/api/transaction",
@@ -79,12 +86,12 @@ rentQueue.process(async function (job, done) {
     const transactionResult = await transactionResp.json();
 
     const transactionId = transactionResult.transactionId;
+    console.log(transactionId, "<<< TRANSACTION ID");
 
-    const midtransOrderId = `ORDER-${transactionId}-${Date.now()}`;
     const midtransPayload = {
       payment_type: "gopay",
       transaction_details: {
-        order_id: midtransOrderId,
+        order_id: transactionId,
         gross_amount: totalAmount,
       },
       customer_details: {
@@ -120,7 +127,7 @@ rentQueue.process(async function (job, done) {
       },
       body: JSON.stringify({
         midTransTransactionId: midtransResult.token,
-        midTransOrderId: midtransOrderId,
+        midTransOrderId: transactionId,
       }),
     });
 
@@ -171,6 +178,7 @@ rentQueue.process(async function (job, done) {
     );
 
     if (!respN8N.ok) {
+      console.log(respN8N, "<<< RESP N8N");
       console.error("Failed to send WhatsApp notification");
     }
 
@@ -180,7 +188,7 @@ rentQueue.process(async function (job, done) {
   }
 });
 
-cron.schedule("* * * * *", async () => {
+cron.schedule("* * * * * *", async () => {
   try {
     const resp = await fetch("http://localhost:3000/api/rents");
 

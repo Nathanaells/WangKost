@@ -10,11 +10,7 @@ export async function proxy(req: NextRequest) {
   try {
     const path = req.nextUrl.pathname;
 
-    const publicPaths = [
-      "/api/rents",
-      "/api/transaction",
-      "/api/tenants/[tenantId]",
-    ];
+    const publicPaths = ["/api/rents", "/api/transaction"];
 
     // Check if path is public
     const isPublic = publicPaths.some((publicPath) =>
