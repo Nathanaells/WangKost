@@ -32,9 +32,9 @@ export async function GET(req: NextRequest, props: IProps) {
   try {
     const { transactionId } = await props.params;
 
-    const transaction = await Transaction.find(transactionId)
+    const transaction = await Transaction.find(transactionId);
 
-    return NextResponse.json(transaction)
+    return NextResponse.json(transaction);
   } catch (error) {
     const { message, status } = customError(error);
     return NextResponse.json({ message }, { status });
