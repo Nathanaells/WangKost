@@ -113,14 +113,22 @@ rentQueue.process(async function (job, done) {
       }),
     });
 
+    //n8n
+
+    await fetch("https://wangkost.app.n8n.cloud/webhook-test/send-wa",{
+      method : "POST",
+      headers : {
+        "Content-Type" : ""
+      }
+    })
+
     done();
   } catch (error) {
-    console.error("[Queue] Processing error:", error);
     done(error as Error);
   }
 });
 
-cron.schedule("* * * * * *", async () => {
+cron.schedule("* * * * *", async () => {
   try {
     const resp = await fetch("http://localhost:3000/api/rents");
 
