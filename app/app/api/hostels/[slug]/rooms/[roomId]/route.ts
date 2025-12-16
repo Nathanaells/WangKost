@@ -18,18 +18,33 @@ export async function GET(req: NextRequest, props: IProps) {
     const roomObjectId = new ObjectId(roomId);
 
     const rent = await Rent.where("roomId", roomObjectId).first();
-    console.log(200, "GETTING RENT", rent)
+
+    const rents = await Rent.with('tenant').where("roomId", roomObjectId).get();
+    // console.log(200, "GETTING RENTs", rents)
     const room = await Room.where("_id", roomObjectId).first();
+
+    // Getting room history    
 
     // Validation check
     if (!room) throw new NotFoundError("Room not found");
 
+    // Map tenant IDs from rents into an array of ObjectIds
+    const tenantIds = rents.map(rent => rent.tenantId);
+    
+    // Fetch tenant data for each tenantId
+    const history = await Promise.all(
+      tenantIds.map(tenantId => Tenant.where("_id", tenantId).first())
+    );
+    room.tenants = history.filter(tenant => tenant !== null) as ITenant[]
+    // console.log(history)
+    // console.log(room)
 
     if (!rent) {
       return NextResponse.json(room)
     }
     // If rent returns empty then we should just give back room data.
     // Otherwise, return with list of tenants.
+    // console.log(200,'ROOM DETAIL',room)
 
 
     return NextResponse.json(room);
