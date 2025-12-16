@@ -17,7 +17,6 @@ export async function GET(req: NextRequest) {
     if (!id) throw new UnauthorizedError();
     const _id = new ObjectId(id);
 
-    console.log(_id);
 
     const hostels = await Hostel.where("ownerId", _id).get();
 

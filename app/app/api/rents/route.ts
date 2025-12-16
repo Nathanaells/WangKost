@@ -9,28 +9,47 @@ import Rent, { rentCreateSchema } from "@/server/models/Rent";
 import { IRent } from "@/types/type";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 // GET all rents for owner
 export async function GET(req: NextRequest) {
   try {
     // Validations
-    const id = req.headers.get("x-owner-id");
-    if (!id) throw new UnauthorizedError();
-    const _id = new ObjectId(id);
+    const day1 = dayjs()
+      .tz("Asia/Jakarta")
+      .add(7, "day")
+      .hour(0)
+      .minute(0)
+      .second(0)
+      .format("YYYY-MM-DD HH:mm:ss");
+    const day2 = dayjs()
+      .tz("Asia/Jakarta")
+      .add(12, "day")
+      .hour(23)
+      .minute(59)
+      .second(59)
+      .format("YYYY-MM-DD HH:mm:ss");
 
-    // Get owner's hostels
-    const hostels = await Hostel.where("ownerId", _id).get();
-    const hostelIds = hostels.map((hostel) => hostel._id);
+    // Convert string to Date object
+    const formatedDate1 = new Date(day1);
+    const formatedDate2 = new Date(day2);
 
-    // Get rooms for those hostels
-    const rooms = await Room.whereIn("hostelId", hostelIds).get();
-    const roomIds = rooms.map((room) => room._id);
+    // console.log(formatedDate1, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+    // console.log(formatedDate2, ">>>>>>>>>>>>>>>>>>>>>>>>>>");
 
-    // Get rents for those rooms
-    const rents = await Rent.whereIn("roomId", roomIds).get();
+    // Query rents where joinAt is between formatedDate1 and formatedDate2
+    const rents = await Rent.where("joinAt", ">=", formatedDate1)
+      .where("joinAt", "<=", formatedDate2)
+      .get();
 
+    // console.log("Found rents:", rent.length);
     return NextResponse.json(rents);
   } catch (error: unknown) {
+    console.log(error);
     const { message, status } = customError(error);
     return NextResponse.json({ message }, { status });
   }
@@ -40,7 +59,6 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body: IRent = await req.json();
-
     const id = req.headers.get("x-owner-id");
     if (!id) throw new UnauthorizedError();
 
