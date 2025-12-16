@@ -9,6 +9,7 @@ import {
   IRentObject,
   IRespAdditional,
   IRentWithAdditionals,
+  IRent,
 } from "@/types/type";
 import { ObjectId } from "mongodb";
 import { DB } from "mongoloquent";
@@ -23,54 +24,56 @@ export async function GET(req: NextRequest, props: IProps) {
     const { rentId } = await props.params;
     const rentObjectId = new ObjectId(rentId);
 
-    // Check if rent exists
     const rentExists = await Rent.find(rentObjectId);
     if (!rentExists) throw new NotFoundError("Rent not found");
 
+    const rent = await Rent.where("_id", rentObjectId).first();
+    console.log(rent);
+
     // Aggregate rent with additionals - menggunakan generic type
-    const rentWithAdditionals = await DB.collection<
-      IRentObject<IRespAdditional[]>
-    >("rents")
-      .raw({
-        $match: {
-          _id: rentObjectId,
-        },
-      })
-      .lookup({
-        from: "additional_rent",
-        localField: "_id",
-        foreignField: "rent_id",
-        as: "rentAdditional",
-      })
-      .lookup({
-        from: "additionals",
-        localField: "rentAdditional.additional_id",
-        foreignField: "_id",
-        as: "additionals",
-      })
-      .raw({
-        $unset: ["createdAt", "updatedAt", "rentAdditional"],
-      })
-      .first();
+    // const rentWithAdditionals = await DB.collection<
+    //   IRentObject<IRespAdditional[]>
+    // >("rents")
+    //   .raw({
+    //     $match: {
+    //       _id: rentObjectId,
+    //     },
+    //   })
+    //   .lookup({
+    //     from: "additional_rent",
+    //     localField: "_id",
+    //     foreignField: "rent_id",
+    //     as: "rentAdditional",
+    //   })
+    //   .lookup({
+    //     from: "additionals",
+    //     localField: "rentAdditional.additional_id",
+    //     foreignField: "_id",
+    //     as: "additionals",
+    //   })
+    //   .raw({
+    //     $unset: ["createdAt", "updatedAt", "rentAdditional"],
+    //   })
+    //   .first();
 
-    if (!rentWithAdditionals) {
-      throw new NotFoundError("Rent not found");
-    }
+    // if (!rentWithAdditionals) {
+    //   throw new NotFoundError("Rent not found");
+    // }
 
-    // Response dengan type IRentWithAdditionals
-    const response: IRentWithAdditionals = {
-      _id: rentWithAdditionals._id,
-      roomId: rentWithAdditionals.roomId,
-      tenantId: rentWithAdditionals.tenantId,
-      price: rentWithAdditionals.price,
-      joinAt: rentWithAdditionals.joinAt,
-      additionals: rentWithAdditionals.additionals,
-      ...(rentWithAdditionals.leaveAt && {
-        leaveAt: rentWithAdditionals.leaveAt,
-      }),
-    };
+    // // Response dengan type IRentWithAdditionals
+    // const response: IRentWithAdditionals = {
+    //   _id: rentWithAdditionals._id,
+    //   roomId: rentWithAdditionals.roomId,
+    //   tenantId: rentWithAdditionals.tenantId,
+    //   price: rentWithAdditionals.price,
+    //   joinAt: rentWithAdditionals.joinAt,
+    //   additionals: rentWithAdditionals.additionals,
+    //   ...(rentWithAdditionals.leaveAt && {
+    //     leaveAt: rentWithAdditionals.leaveAt,
+    //   }),
+    // };
 
-    return NextResponse.json(response);
+    return NextResponse.json({});
   } catch (error: unknown) {
     const { message, status } = customError(error);
     return NextResponse.json({ message }, { status });

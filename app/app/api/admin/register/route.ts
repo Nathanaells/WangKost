@@ -15,15 +15,20 @@ export async function POST(req: NextRequest) {
       password: body.password,
       phoneNumber: body.phoneNumber,
     });
-
-    const owner = await Owner.where("email", body.email)
-      .where("phoneNumber", body.phoneNumber)
-      .first();
-
-    if (owner) {
-      throw new BadRequest("error : Email or Phone Number Already used");
+    
+    // DUPLICATE CHECK
+    const existingEmail = await Owner.where("email", body.email).first();
+    if (existingEmail) {
+      throw new BadRequest("error: Email already registered");
     }
 
+    const existingPhone = await Owner.where("phoneNumber", body.phoneNumber).first();
+    if (existingPhone) {
+      throw new BadRequest("error: Phone number already registered");
+    }
+    
+
+    // OWNER CREATION
     body.password = await hashPassword(body.password);
 
     await Owner.create({
