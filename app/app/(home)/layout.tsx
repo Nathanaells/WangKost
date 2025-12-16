@@ -11,8 +11,8 @@ export default async function HomeLayout({ children }: { children: React.ReactNo
 
     return (
         <>
-            {children}
             <Sidebar />
+            {children}
         </>
     );
 }
