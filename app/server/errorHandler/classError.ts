@@ -7,15 +7,21 @@ export class CustomError extends Error {
   }
 }
 
+export class BadRequest extends CustomError {
+  constructor(message?: string) {
+    super(message || "Invalid email/password", 400);
+  }
+}
+
 export class UnauthorizedError extends CustomError {
   constructor(message?: string) {
     super(message || "Unauthorized", 401);
   }
 }
 
-export class BadRequest extends CustomError {
+export class ForbiddenError extends CustomError {
   constructor(message?: string) {
-    super(message || "Invalid email/password", 400);
+    super(message || "Forbidden", 403);
   }
 }
 

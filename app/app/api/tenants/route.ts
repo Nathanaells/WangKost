@@ -15,24 +15,23 @@ import Owner from "@/server/models/Owner";
 export async function GET(req: NextRequest) {
   try {
     const id = req.headers.get("x-owner-id");
-    // console.log(id)
-    if (!id) throw new UnauthorizedError();
-    const ownerId = new ObjectId(id)
-    // console.log(ownerId)
 
-    const owner = await Owner.with('rooms').where('_id', ownerId).first()
-    // console.log(owner)
-    const roomIds = owner?.rooms?.map(room => room._id)
-    const rooms = await Room.whereIn('_id', roomIds as ObjectId[]).with('tenants').get()
-    const tenants  : any[] = []
-    rooms.forEach(room => {
-      room.tenants.forEach(tenant => {
-        tenants.push(tenant)
-      })
-    })
-    // console.log(roomIds)
-    // console.log(rooms)
-    // console.log(tenants)
+    if (!id) throw new UnauthorizedError();
+    const ownerId = new ObjectId(id);
+
+    const owner = await Owner.with("rooms").where("_id", ownerId).first();
+
+    const roomIds = owner?.rooms?.map((room) => room._id);
+    const rooms = await Room.whereIn("_id", roomIds as ObjectId[])
+      .with("tenants")
+      .get();
+    const tenants: any[] = [];
+    rooms.forEach((room) => {
+      room.tenants.forEach((tenant) => {
+        tenants.push(tenant);
+      });
+    });
+
     return NextResponse.json(tenants);
   } catch (error: unknown) {
     const { message, status } = customError(error);

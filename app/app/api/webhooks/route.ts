@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import Transaction from "@/server/models/Transaction";
-import { TransactionStatus } from "@/types/type";
+import { IMidtransResponse, TransactionStatus } from "@/types/type";
 import crypto from "crypto";
+import {
+  ForbiddenError,
+  NotFoundError,
+  UnauthorizedError,
+} from "@/server/errorHandler/classError";
+import customError from "@/server/errorHandler/customError";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-
+    const body: IMidtransResponse = await request.json();
+    console.log(body, "<<< WEBHOOK BODY");
     const {
       order_id,
       transaction_status,
@@ -19,10 +25,7 @@ export async function POST(request: NextRequest) {
     const serverKey = process.env.MIDTRANS_SERVER_KEY;
 
     if (!serverKey) {
-      return NextResponse.json(
-        { success: false, message: "Server configuration error" },
-        { status: 500 }
-      );
+      throw new UnauthorizedError("Server configuration error");
     }
 
     const hash = crypto
@@ -31,22 +34,18 @@ export async function POST(request: NextRequest) {
       .digest("hex");
 
     if (hash !== signature_key) {
-      return NextResponse.json(
-        { success: false, message: "Invalid signature" },
-        { status: 403 }
-      );
+      throw new ForbiddenError("Invalid signature");
     }
 
     const transaction = await Transaction.where(
-      "midTransOrderId",
+      "midTransTransactionId",
       order_id
     ).first();
 
+    console.log(transaction, "<<< TRANSACTION");
+
     if (!transaction) {
-      return NextResponse.json(
-        { success: false, message: "Transaction not found" },
-        { status: 404 }
-      );
+      throw new NotFoundError("Transaction not found");
     }
 
     let newStatus = transaction.status;
@@ -102,13 +101,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    return NextResponse.json(
-      {
-        success: false,
-        message:
-          error instanceof Error ? error.message : "Internal server error",
-      },
-      { status: 500 }
-    );
+    const { message, status } = customError(error);
+    return NextResponse.json({ message }, { status });
   }
 }
