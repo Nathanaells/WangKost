@@ -8,6 +8,7 @@ import { ObjectId } from "mongodb";
 import Tenant from "./Tenant";
 import Additional from "./Additional";
 import z from "zod";
+import AdditionalRent from "./AdditionalRent";
 
 export const rentCreateSchema = z.object({
   price: z.number().positive("Price must be positive"),
@@ -38,8 +39,8 @@ export default class Rent extends Model<IRent> {
     return this.belongsTo(Tenant, "tenantId", "_id");
   }
 
-  public additionals() {
+  public additionalRents() {
     // Simple belongsToMany - Mongoloquent will auto-detect pivot table "additional_rent"
-    return this.belongsToMany(Additional);
+    return this.hasMany(AdditionalRent, "rent_id", "_id");
   }
 }
