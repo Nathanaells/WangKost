@@ -14,12 +14,31 @@ export default function Register() {
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    
+    // Format phone number with +62 prefix
+    let formattedPhone = phoneNumber.trim();
+    
+    // Remove leading zero if exists
+    if (formattedPhone.startsWith('0')) {
+      formattedPhone = formattedPhone.substring(1);
+    }
+    
+    // Remove +62 if already exists to avoid duplication
+    if (formattedPhone.startsWith('+62')) {
+      formattedPhone = formattedPhone.substring(3);
+    } else if (formattedPhone.startsWith('62')) {
+      formattedPhone = formattedPhone.substring(2);
+    }
+    
+    // Add +62 prefix
+    formattedPhone = `+62${formattedPhone}`;
+    
     const resp = await fetch(`${url}/api/admin/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name, email, phoneNumber, password }),
+      body: JSON.stringify({ name, email, phoneNumber: formattedPhone, password }),
     });
 
     const data = await resp.json();
@@ -111,20 +130,24 @@ export default function Register() {
 
             <div>
               <label
-                htmlFor="password"
+                htmlFor="phoneNumber"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
                 Phone Number
               </label>
               <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span className="text-gray-500 sm:text-sm">+62</span>
+                </div>
                 <input
                   type="tel"
                   name="phoneNumber"
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="text-black w-full px-4 py-3 rounded-lg border"
-                  placeholder="08123456789"
+                  className="text-black w-full pl-12 pr-4 py-3 rounded-lg border"
+                  placeholder="8123456789"
                 />
               </div>
+              <p className="mt-1 text-xs text-gray-500">Masukkan nomor tanpa 0 di depan</p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
