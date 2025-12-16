@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import Link from 'next/link';
 import AddTenantButton from './AddTenantButton';
 import AddAdditionalButton from './AddAdditionalButton';
+import EditTenantButton from './EditTenantButton';
 import Rent from '@/server/models/Rent';
 import { ObjectId } from 'mongodb';
 
@@ -270,8 +271,10 @@ export default async function RoomDetailPage(props: IProps) {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-bold text-gray-800">Tenant Information</h2>
-                        {!rent && (
+                        {!rent ? (
                             <AddTenantButton roomId={roomId} slug={slug} fixedCost={room.fixedCost} allAdditionals={allAdditionals} />
+                        ) : (
+                            rent.tenant && <EditTenantButton tenant={rent.tenant} slug={slug} roomId={roomId} />
                         )}
                     </div>
 
@@ -335,6 +338,8 @@ export default async function RoomDetailPage(props: IProps) {
                                 rentId={rent._id}
                                 allAdditionals={allAdditionals}
                                 currentAdditionals={rent.additionals || []}
+                                slug={slug}
+                                roomId={roomId}
                             />
                         </div>
 

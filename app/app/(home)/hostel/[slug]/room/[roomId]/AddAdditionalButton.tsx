@@ -158,10 +158,6 @@ export default function AddAdditionalButton({ rentId, allAdditionals, currentAdd
         setCustomAdditional({ name: '', price: 0 });
     };
 
-    if (availableAdditionals.length === 0) {
-        return null;
-    }
-
     return (
         <>
             <button
