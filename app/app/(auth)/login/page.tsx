@@ -6,7 +6,6 @@ import { setCookie } from '@/app/(auth)/login/action';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 
-
 export default function LoginPage() {
     const [phoneNumber, setPhoneNumber] = useState<string>('');
     const [password, setPassword] = useState<string>('');
@@ -17,19 +16,19 @@ export default function LoginPage() {
 
         // Format phone number with +62 prefix
         let formattedPhone = phoneNumber.trim();
-        
+
         // Remove leading 0 if exists
         if (formattedPhone.startsWith('0')) {
             formattedPhone = formattedPhone.substring(1);
         }
-        
+
         // Remove +62 or 62 if already exists
         if (formattedPhone.startsWith('+62')) {
             formattedPhone = formattedPhone.substring(3);
         } else if (formattedPhone.startsWith('62')) {
             formattedPhone = formattedPhone.substring(2);
         }
-        
+
         // Add +62 prefix
         formattedPhone = '+62' + formattedPhone;
 
@@ -43,24 +42,32 @@ export default function LoginPage() {
 
         const data = await resp.json();
         if (!resp.ok) {
-            if (data.message.length > 1) {
+            // Handle error messages
+            if (Array.isArray(data.message)) {
+                // If message is an array
                 data.message.forEach((el: string) => {
-                    const text: string[] = el.split(':');
-                    showError(text[1]);
+                    if (el.includes(':')) {
+                        const text: string[] = el.split(':');
+                        showError(text[1].trim());
+                    } else {
+                        showError(el);
+                    }
                 });
-                return;
+            } else if (typeof data.message === 'string') {
+                // If message is a string
+                showError(data.message);
             } else {
-                const text: string = data.message[0].split(':')[1];
-                showError(text);
-                return;
+                // Fallback
+                showError('Invalid phone number or password');
             }
+            return;
         }
 
         setCookie('access_token', data.access_token);
 
         showSuccess('Success Login');
         setTimeout(() => {
-            toast.dismiss()
+            toast.dismiss();
             router.push('/dashboard');
         }, 1000);
     };

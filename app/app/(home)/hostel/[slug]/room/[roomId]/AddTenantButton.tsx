@@ -258,7 +258,7 @@ export default function AddTenantButton({ roomId, slug, fixedCost, allAdditional
                                 <div className="bg-gray-50 rounded-lg p-4 space-y-2">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-600">Room Price:</span>
-                                        <span className="font-semibold">Rp {fixedCost.toLocaleString('id-ID')}</span>
+                                        <span className="font-semibold text-gray-600">Rp {fixedCost.toLocaleString('id-ID')}</span>
                                     </div>
                                     {totalAdditionalCost > 0 && (
                                         <div className="flex justify-between text-sm">

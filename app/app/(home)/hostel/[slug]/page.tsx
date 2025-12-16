@@ -134,16 +134,16 @@ export default async function HostelDetailPage(props: IProps) {
                             <div className="text-2xl font-bold text-gray-900">{rooms.length}</div>
                             {hostel.maxRoom && <div className="text-xs text-gray-500 mt-1">of {hostel.maxRoom} max</div>}
                         </div>
-                        <div className="bg-green-50 p-4 rounded-lg">
-                            <div className="text-green-600 text-sm font-medium mb-1">Occupied</div>
+                        <div className=" bg-red-50 p-4 rounded-lg">
+                            <div className="text-orange-600 text-sm font-medium mb-1">Occupied</div>
                             <div className="text-2xl font-bold text-gray-900">{occupiedRooms}</div>
                         </div>
                         <div className="bg-purple-50 p-4 rounded-lg">
                             <div className="text-purple-600 text-sm font-medium mb-1">Occupancy Rate</div>
                             <div className="text-2xl font-bold text-gray-900">{occupancyRate}%</div>
                         </div>
-                        <div className="bg-orange-50 p-4 rounded-lg">
-                            <div className="text-orange-600 text-sm font-medium mb-1">Available</div>
+                        <div className="bg-green-50 p-4 rounded-lg">
+                            <div className=" text-green-600 text-sm font-medium mb-1">Available</div>
                             <div className="text-2xl font-bold text-gray-900">{rooms.length - occupiedRooms}</div>
                         </div>
                     </div>
@@ -163,12 +163,16 @@ export default async function HostelDetailPage(props: IProps) {
                                 <Link
                                     key={room._id}
                                     href={`/hostel/${slug}/room/${room._id}`}
-                                    className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
+                                    className={`rounded-lg p-4 hover:shadow-md transition-all cursor-pointer border-2 ${
+                                        room.isAvailable
+                                            ? 'bg-green-50 border-green-200 hover:bg-green-100'
+                                            : 'bg-red-50 border-red-200 hover:bg-red-100'
+                                    }`}>
                                     <div className="flex justify-between items-start mb-3">
                                         <h3 className="font-semibold text-gray-900">Room {index + 1}</h3>
                                         <span
                                             className={`px-2 py-1 text-xs font-medium rounded-full ${
-                                                room.isAvailable ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                                room.isAvailable ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'
                                             }`}>
                                             {room.isAvailable ? 'Available' : 'Occupied'}
                                         </span>

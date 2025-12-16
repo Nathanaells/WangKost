@@ -84,7 +84,7 @@ export default function EditMaxRoomButton({ slug, currentMaxRoom }: EditMaxRoomB
                                     id="maxRoom"
                                     value={maxRoom}
                                     onChange={(e) => setMaxRoom(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="text-gray-600 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     placeholder="Enter max room number"
                                     min="1"
                                     required

@@ -68,12 +68,6 @@ export default function FeenDues() {
     return (
         <div className="p-4 pt-20 sm:ml-64 bg-gray-50 min-h-screen">
             <div className="max-w-7xl mx-auto pt-6">
-                {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-2xl font-bold text-gray-900">Fee and Due</h1>
-                    <p className="text-gray-500 mt-1">Manage fee and dues</p>
-                </div>
-
                 {loading ? (
                     <div className="bg-white rounded-xl shadow-sm p-8 text-center">
                         <p className="text-gray-600">Loading payment data...</p>
