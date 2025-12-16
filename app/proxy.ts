@@ -10,7 +10,11 @@ export async function proxy(req: NextRequest) {
   try {
     const path = req.nextUrl.pathname;
 
-    const publicPaths = ["/api/rents", "/api/transaction"];
+    const publicPaths = [
+      "/api/rents",
+      "/api/transaction",
+      "/api/tenants/[tenantId]",
+    ];
 
     // Check if path is public
     const isPublic = publicPaths.some((publicPath) =>
@@ -22,7 +26,7 @@ export async function proxy(req: NextRequest) {
       return NextResponse.next();
     }
 
-    const protectedPaths = ["/api/hostels", "/api/tenants", "/api/additionals"];
+    const protectedPaths = ["/api/hostels", "/api/additionals"];
 
     if (path.startsWith("/api")) {
       const isProtected = protectedPaths.some((protectedPath) =>

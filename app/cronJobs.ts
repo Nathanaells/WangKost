@@ -4,6 +4,7 @@ dotenv.config();
 import {
   IRentObject,
   IRentWithAdditionals,
+  IRespTenant,
   TransactionStatus,
 } from "@/types/type";
 import cron from "node-cron";
@@ -15,7 +16,7 @@ const midtransApiUrl: string = process.env.MIDTRANS_API_URL as string;
 
 const rentQueue = new Queue(
   "Rent Transcoding",
-  "redis://default:gpRDTl8PQbDP289p31aHlksWxrOz1cek@redis-15147.c292.ap-southeast-1-1.ec2.cloud.redislabs.com:15147"
+  process.env.REDIS_URL as string
 );
 
 rentQueue.process(async function (job, done) {
@@ -30,6 +31,16 @@ rentQueue.process(async function (job, done) {
     }
 
     const rentData: IRentWithAdditionals = await rentResp.json();
+
+    const respTenant = await fetch(
+      `http://localhost:3000/api/tenants/${rentData.tenantId}`
+    );
+
+    if (!respTenant) {
+      throw new Error("Failed to get Tenant");
+    }
+    const tenant: IRespTenant = await respTenant.json();
+    console.log(tenant, "INI TENANT!!!!!");
 
     let additionalTotal = 0;
     if (rentData.additionals && rentData.additionals.length > 0) {
@@ -77,9 +88,9 @@ rentQueue.process(async function (job, done) {
         gross_amount: totalAmount,
       },
       customer_details: {
-        first_name: `Tenant`,
-        email: "tenant@wangkost.com",
-        phone: "081223323423",
+        name: tenant.name,
+        email: tenant.email,
+        phoneNumber: tenant.phoneNumber,
       },
     };
 
@@ -113,14 +124,55 @@ rentQueue.process(async function (job, done) {
       }),
     });
 
-    //n8n
+    // Build WhatsApp message with bills details
+    const formattedDueDate = dayjs(dueDate).format("DD MMMM YYYY");
+    let message = `🏠 *TAGIHAN KOST - ${tenant.name}*\n\n`;
+    message += `📅 *Jatuh Tempo:* ${formattedDueDate}\n`;
+    message += `━━━━━━━━━━━━━━━━━━━━\n\n`;
 
-    await fetch("https://wangkost.app.n8n.cloud/webhook-test/send-wa",{
-      method : "POST",
-      headers : {
-        "Content-Type" : ""
+    // Rent price
+    message += `🏠 *Biaya Sewa Kamar*\n`;
+    message += `Rp ${rentData.price.toLocaleString("id-ID")}\n\n`;
+
+    // Additionals
+    if (rentData.additionals && rentData.additionals.length > 0) {
+      message += `📦 *Biaya Tambahan:*\n`;
+      rentData.additionals.forEach((additional) => {
+        message += `• ${additional.name}: Rp ${additional.price.toLocaleString(
+          "id-ID"
+        )}\n`;
+      });
+      message += `\n`;
+    }
+
+    message += `━━━━━━━━━━━━━━━━━━━━\n`;
+    message += `💰 *TOTAL TAGIHAN*\n`;
+    message += `*Rp ${totalAmount.toLocaleString("id-ID")}*\n\n`;
+
+    message += `🔗 *Link Pembayaran:*\n`;
+    message += `${midtransResult.redirect_url}\n\n`;
+
+    message += `Silakan lakukan pembayaran sebelum tanggal jatuh tempo.\n`;
+    message += `Terima kasih! 🙏`;
+
+    // Send to n8n webhook
+    const respN8N = await fetch(
+      "https://wangkost.app.n8n.cloud/webhook-test/send-wa",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phoneNumber: tenant.phoneNumber,
+          message: message,
+        }),
       }
-    })
+    );
+
+    if (!respN8N.ok) {
+      console.error("Failed to send WhatsApp notification");
+    }
 
     done();
   } catch (error) {
