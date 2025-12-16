@@ -10,13 +10,20 @@ import { ICreateTenant, ITenant } from "@/types/type";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 import { DB } from "mongoloquent";
+import Hostel from "@/server/models/Hostel";
 
 export async function GET(req: NextRequest) {
   try {
     const id = req.headers.get("x-owner-id");
     if (!id) throw new UnauthorizedError();
-    const tenants = await Tenant.get();
-
+    const ownerId = new ObjectId(id)
+    console.log(ownerId)
+    // We're suppose to get list of tenants of owner.
+    // Tenants -> Rent -> Room -> Hostel -> Owner
+    const hostel = await Hostel.with('tenants').where('ownerId', ownerId).get()
+    console.log(hostel)
+    const tenants = await Tenant.with('rent').with('room').get();
+    // console.log(tenants)
     return NextResponse.json(tenants);
   } catch (error: unknown) {
     const { message, status } = customError(error);
