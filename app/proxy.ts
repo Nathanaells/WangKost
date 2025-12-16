@@ -31,7 +31,6 @@ export async function proxy(req: NextRequest) {
       const isProtected = protectedPaths.some((protectedPath) =>
         path.startsWith(protectedPath)
       );
-      // console.log('PROXY, PRO', 200)
       if (isProtected) {
         const cookieStore = await cookies();
         const token = cookieStore.get("access_token");

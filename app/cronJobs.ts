@@ -49,7 +49,7 @@ rentQueue.process(async function (job, done) {
     const dueDate = dayjs(rentData.joinAt);
 
     const transactionResp = await fetch(
-      "http://localhost:3000/api/transaction",
+      "http://localhost:3000/api/publicTransaction",
       {
         method: "POST",
         headers: {
@@ -73,7 +73,6 @@ rentQueue.process(async function (job, done) {
     const transactionResult = await transactionResp.json();
 
     const transactionId = transactionResult.transactionId;
-    console.log(transactionId, "<<< TRANSACTION ID");
 
     const midtransPayload = {
       payment_type: "gopay",
@@ -107,16 +106,19 @@ rentQueue.process(async function (job, done) {
 
     const midtransResult = await midtransResp.json();
 
-    await fetch(`http://localhost:3000/api/transaction/${transactionId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        midTransTransactionId: midtransResult.token,
-        midTransOrderId: transactionId,
-      }),
-    });
+    await fetch(
+      `http://localhost:3000/api/publicTransaction/${transactionId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          midTransTransactionId: midtransResult.token,
+          midTransOrderId: transactionId,
+        }),
+      }
+    );
 
     const formattedDueDate = dayjs(dueDate).format("DD MMMM YYYY");
     let message = `🏠 *TAGIHAN KOST - ${tenant.name}*\n\n`;
@@ -162,7 +164,6 @@ rentQueue.process(async function (job, done) {
     );
 
     if (!respN8N.ok) {
-      console.log(respN8N, "<<< RESP N8N");
       console.error("Failed to send WhatsApp notification");
     }
 
