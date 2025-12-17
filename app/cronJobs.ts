@@ -10,9 +10,13 @@ import cron from "node-cron";
 import Queue from "bull";
 import dayjs from "dayjs";
 import Tenant from "./server/models/Tenant";
+import Transaction from "./server/models/Transaction";
+import { ObjectId } from "mongodb";
 
 const midtransSecret: string = process.env.MIDTRANS_SERVER_KEY as string;
 const midtransApiUrl: string = process.env.MIDTRANS_API_URL as string;
+
+console.log("Cron job started...");
 
 const rentQueue = new Queue(
   "Rent Transcoding",
@@ -21,7 +25,17 @@ const rentQueue = new Queue(
 
 rentQueue.process(async function (job, done) {
   try {
+    console.log(`Processing rent ${job.data.rentId}...`);
     const rentId = job.data.rentId;
+    const rentObjectId = new ObjectId(rentId);
+
+    const transaction = await Transaction.where("rentId", rentObjectId).first();
+
+    if (transaction) {
+      console.log(`Transaction already exists for rent ${rentId}, skipping...`);
+      done();
+      return;
+    }
     const rentResp = await fetch(
       `http://localhost:3000/api/rents/${rentId}/rentAdditionals`
     );
@@ -75,7 +89,7 @@ rentQueue.process(async function (job, done) {
     const transactionId = transactionResult.transactionId;
 
     const midtransPayload = {
-      payment_type: "gopay",
+      payment_type: "credit_card",
       transaction_details: {
         order_id: transactionId,
         gross_amount: totalAmount,
@@ -173,7 +187,7 @@ rentQueue.process(async function (job, done) {
   }
 });
 
-cron.schedule("* * * * *", async () => {
+cron.schedule("*/15 * * * * *", async () => {
   try {
     const resp = await fetch("http://localhost:3000/api/rents");
 
