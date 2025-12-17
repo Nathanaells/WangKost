@@ -134,7 +134,6 @@ async function getRentByRoomId(roomId: string): Promise<IRent | null> {
           : [];
       }
     } catch (error) {
-      console.error("Error fetching rent additionals:", error);
       rent.additionals = [];
     }
 
@@ -199,7 +198,8 @@ async function getLatestTransaction(
       return null;
     }
 
-    const transactions: ITransaction[] = await response.json();
+    const result = await response.json();
+    const transactions: ITransaction[] = result.data || [];
 
     // Filter transactions for this room and sort by createdAt to get the latest
     const roomTransactions = transactions
