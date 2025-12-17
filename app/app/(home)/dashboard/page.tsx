@@ -32,10 +32,6 @@ async function getDashboardData() {
   try {
     const token = await getCookies();
 
-    if (!token) {
-      throw new Error("No authentication token");
-    }
-
     const hostelsResponse = await fetch(`${url}/api/hostels`, {
       headers: {
         Cookie: `access_token=${token}`,
@@ -67,12 +63,6 @@ async function getDashboardData() {
     const transactions: ITransactionResponse[] = transactionsResponse.ok
       ? await transactionsResponse.json()
       : [];
-
-    console.log("Transactions data:", transactions);
-    console.log(
-      "Transaction amounts:",
-      transactions.map((t) => t.amount)
-    );
 
     // Calculate statistics
     const totalHostels = hostels.length;
@@ -107,8 +97,6 @@ async function getDashboardData() {
       (sum, transaction) => sum + transaction.amount,
       0
     );
-
-    console.log("Monthly Income calculated:", monthlyIncome);
 
     return {
       totalHostels,

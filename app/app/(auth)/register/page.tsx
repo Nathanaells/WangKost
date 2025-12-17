@@ -1,9 +1,10 @@
 /* eslint-disable prefer-const */
 "use client";
+import { getCookies } from "@/app/(home)/feendue/actions";
 import url from "@/components/constant";
 import { showError, showSuccess } from "@/components/toast";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 export default function Register() {
@@ -13,33 +14,43 @@ export default function Register() {
   const [password, setPassword] = useState<string>("");
   const router = useRouter();
 
+  async function cookie() {
+    const token = await getCookies();
+    return token;
+  }
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    
+
     // Format phone number with +62 prefix
     let formattedPhone = phoneNumber.trim();
-    
+
     // Remove leading zero if exists
-    if (formattedPhone.startsWith('0')) {
+    if (formattedPhone.startsWith("0")) {
       formattedPhone = formattedPhone.substring(1);
     }
-    
+
     // Remove +62 if already exists to avoid duplication
-    if (formattedPhone.startsWith('+62')) {
+    if (formattedPhone.startsWith("+62")) {
       formattedPhone = formattedPhone.substring(3);
-    } else if (formattedPhone.startsWith('62')) {
+    } else if (formattedPhone.startsWith("62")) {
       formattedPhone = formattedPhone.substring(2);
     }
-    
+
     // Add +62 prefix
     formattedPhone = `+62${formattedPhone}`;
-    
+
     const resp = await fetch(`${url}/api/admin/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name, email, phoneNumber: formattedPhone, password }),
+      body: JSON.stringify({
+        name,
+        email,
+        phoneNumber: formattedPhone,
+        password,
+      }),
     });
 
     const data = await resp.json();
@@ -60,10 +71,22 @@ export default function Register() {
 
     showSuccess("Success Registrasi");
     setTimeout(() => {
-        toast.dismiss()
-        router.push("/login");
-    }, 1000)
+      toast.dismiss();
+      router.push("/login");
+    }, 1000);
   }
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = await cookie();
+
+      if (token) {
+        router.push("/dashboard");
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100 p-4">
@@ -91,8 +114,8 @@ export default function Register() {
                 />
               </svg>
             </div>
-            <h2 className="text-3xl font-bold text-gray-800">Daftar Akun</h2>
-            <p className="text-gray-500 mt-2">Buat akun baru Anda</p>
+            <h2 className="text-3xl font-bold text-gray-800">Create Account</h2>
+            <p className="text-gray-500 mt-2">Create your new account</p>
           </div>
 
           <div className="space-y-5">
@@ -109,7 +132,7 @@ export default function Register() {
                 name="name"
                 onChange={(e) => setName(e.target.value)}
                 className="text-black w-full px-4 py-3 rounded-lg border"
-                placeholder="Masukkan nama"
+                placeholder="Your Name"
               />
             </div>
 
@@ -148,7 +171,9 @@ export default function Register() {
                   placeholder="8123456789"
                 />
               </div>
-              <p className="mt-1 text-xs text-gray-500">Masukkan nomor tanpa 0 di depan</p>
+              <p className="mt-1 text-xs text-gray-500">
+                Input without leading zero
+              </p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -168,19 +193,19 @@ export default function Register() {
               className="w-full text-white py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
               style={{ backgroundColor: "#5353ec" }}
             >
-              Daftar Sekarang
+              Register
             </button>
           </div>
 
           <div className="mt-6 text-center">
             <p className="text-gray-600">
-              Sudah punya akun?{" "}
+              Already have an account?{" "}
               <a
                 href="/login"
                 className="font-semibold hover:underline"
                 style={{ color: "#5353ec" }}
               >
-                Masuk di sini
+                Login here
               </a>
             </p>
           </div>
