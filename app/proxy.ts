@@ -10,11 +10,7 @@ export async function proxy(req: NextRequest) {
   try {
     const path = req.nextUrl.pathname;
 
-<<<<<<< HEAD
-    const publicPaths = ["/api/rents",];
-=======
     const publicPaths = ["/api/rents"];
->>>>>>> 615b5e94c61e50827e1c377bfbf8e1190c384972
 
     const isPublic = publicPaths.some((publicPath) =>
       path.startsWith(publicPath)
@@ -24,16 +20,12 @@ export async function proxy(req: NextRequest) {
       return NextResponse.next();
     }
 
-<<<<<<< HEAD
-    const protectedPaths = ["/api/hostels", "/api/additionals", "/api/tenants", "/api/transaction"];
-=======
     const protectedPaths = [
       "/api/hostels",
       "/api/additionals",
       "/api/tenants",
       "/api/transaction",
     ];
->>>>>>> 615b5e94c61e50827e1c377bfbf8e1190c384972
 
     if (path.startsWith("/api")) {
       const isProtected = protectedPaths.some((protectedPath) =>

@@ -8,6 +8,8 @@ import { ObjectId } from "mongodb";
 import { DB } from "mongoloquent";
 import { NextRequest, NextResponse } from "next/server";
 import { ITransactionResponse } from "@/types/type";
+import Owner from "@/server/models/Owner";
+import Room from "@/server/models/Room";
 
 
 interface IMatchStage {
@@ -45,23 +47,6 @@ interface IHostel {
   name: string;
   address?: string;
   ownerId: ObjectId;
-}
-
-// Interface untuk response data transaction
-interface ITransactionResponse {
-  _id: ObjectId;
-  tenantId: ObjectId;
-  rentId: ObjectId;
-  amount: number;
-  status: string;
-  dueDate: Date;
-  paidAt?: Date;
-  midTransTransactionId?: string;
-  midTransOrderId?: string;
-  createdAt: Date;
-  updatedAt: Date;
-  tenant?: ITenant;
-  hostel?: IHostel;
 }
 
 // Interface untuk single result dari aggregation
