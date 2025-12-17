@@ -38,35 +38,19 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     const id = req.headers.get("x-owner-id");
+    console.log(id)
     if (!id) throw new UnauthorizedError();
     const _id = new ObjectId(id);
+    // Get transactions via owner id
 
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
-    const skip = (page - 1) * limit;
-
-    // Get total count
-    const total = await Transaction.with('rent').with('room').with('hostel').where('hostel.ownerId', _id).count();
 
     // Get paginated transactions
-    const transactions = await Transaction.with('rent')
-      .with('room')
-      .with('hostel')
-      .where('hostel.ownerId', _id)
-      .skip(skip)
-      .take(limit)
-      .get();
-
-    return NextResponse.json({
-      transactions,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      }
-    })
+    const transactions = await Transaction.paginate(page, limit)
+    return NextResponse.json(
+      transactions)
   } catch (error) {
     const { message, status } = customError(error);
     return NextResponse.json({ message }, { status });
