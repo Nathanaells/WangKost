@@ -150,7 +150,7 @@ rentQueue.process(async function (job, done) {
 
     // Send to n8n webhook
     const respN8N = await fetch(
-      "https://wangkost.app.n8n.cloud/webhook-test/send-wa",
+      "https://wangkost.app.n8n.cloud/webhook/send-wa",
       {
         method: "POST",
         headers: {
