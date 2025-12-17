@@ -188,31 +188,18 @@ async function getLatestTransaction(
     const cookieStore = await cookies();
     const token = cookieStore.get("access_token");
 
-    if (!token) {
-      return null;
-    }
-
-    // Decode token to get owner ID
-    const jwt = await import("jsonwebtoken");
-    const decoded = jwt.verify(
-      token.value,
-      process.env.JWT_SECRET as string
-    ) as { userId: string };
-
-    const response = await fetch(`${url}/api/transaction?limit=1000`, {
-      headers: {
-        Cookie: `access_token=${token.value}`,
-        "x-owner-id": decoded.userId,
-      },
-      cache: "no-store",
-    });
+        const response = await fetch(`${url}/api/transaction`, {
+            headers: {
+                Cookie: `access_token=${token?.value}`,
+            },
+            cache: 'no-store',
+        });
 
     if (!response.ok) {
       return null;
     }
 
-    const data = await response.json();
-    const transactions: ITransaction[] = data.transactions || [];
+        const transactions: ITransaction[] = await response.json();
 
     // Filter transactions for this room and sort by createdAt to get the latest
     const roomTransactions = transactions

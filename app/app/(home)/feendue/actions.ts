@@ -33,14 +33,16 @@ interface ITransaction {
   };
 }
 
+interface IPaginationInfo {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
 interface IApiResponse {
   data: ITransaction[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
+  pagination: IPaginationInfo;
 }
 
 export async function getCookies(): Promise<string> {
@@ -52,7 +54,7 @@ export async function getCookies(): Promise<string> {
 
 export async function fetchTransactionsData(
   page: number = 1,
-  limit: number = 100,
+  limit: number = 10,
   status?: string
 ) {
   try {
@@ -60,7 +62,7 @@ export async function fetchTransactionsData(
     const token = cookieStore.get("access_token");
 
     if (!token) {
-      return { success: false, message: "Not authenticated", payments: [] };
+      return { success: false, message: "Not authenticated", payments: [], pagination: undefined };
     }
 
     // Build query params
@@ -69,7 +71,7 @@ export async function fetchTransactionsData(
       limit: limit.toString(),
     });
 
-    if (status && status !== "all") {
+    if (status && status !== "all" && status !== undefined) {
       params.append("status", status.toUpperCase());
     }
 
@@ -90,6 +92,7 @@ export async function fetchTransactionsData(
         success: false,
         message: "Failed to fetch transactions",
         payments: [],
+        pagination: undefined,
       };
     }
 
@@ -117,13 +120,18 @@ export async function fetchTransactionsData(
       }
     );
 
-    return { success: true, payments: mappedPayments };
+    return { 
+      success: true, 
+      payments: mappedPayments,
+      pagination: apiData.pagination 
+    };
   } catch (error) {
     console.error("Error fetching transactions data:", error);
     return {
       success: false,
       message: error instanceof Error ? error.message : "Unknown error",
       payments: [],
+      pagination: undefined,
     };
   }
 }
