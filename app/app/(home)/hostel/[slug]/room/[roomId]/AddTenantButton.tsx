@@ -63,7 +63,6 @@ export default function AddTenantButton({
         formattedPhone = formattedPhone.substring(2);
       }
 
-      // Add +62 prefix
       formattedPhone = "+62" + formattedPhone;
 
       const token = await getCookies();
@@ -261,40 +260,7 @@ export default function AddTenantButton({
                   {/* Additional Services */}
                   <div className="border-t pt-4">
                     {showCustomAdditional && (
-                      <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
-                        <input
-                          type="text"
-                          value={customAdditional.name}
-                          onChange={(e) =>
-                            setCustomAdditional({
-                              ...customAdditional,
-                              name: e.target.value,
-                            })
-                          }
-                          className="w-full text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                          placeholder="Additional service name"
-                        />
-                        <input
-                          type="number"
-                          value={customAdditional.price || ""}
-                          onChange={(e) =>
-                            setCustomAdditional({
-                              ...customAdditional,
-                              price: parseInt(e.target.value) || 0,
-                            })
-                          }
-                          className="w-full text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                          placeholder="Price (Rp)"
-                          min="0"
-                        />
-                        <button
-                          type="button"
-                          onClick={handleAddCustomAdditional}
-                          className="w-full px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                        >
-                          Create & Add
-                        </button>
-                      </div>
+                      <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-2"></div>
                     )}
 
                     <div className="space-y-2 max-h-40 overflow-y-auto">

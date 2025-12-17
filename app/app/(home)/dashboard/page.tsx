@@ -1,6 +1,7 @@
 import url from "@/components/constant";
 import { cookies } from "next/headers";
 import { ITransactionResponse } from "@/types/type";
+import { getCookies } from "../feendue/actions";
 interface IRoom {
   _id: string;
   fixedCost: number;
@@ -28,24 +29,15 @@ interface IRent {
 
 async function getDashboardData() {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("access_token");
+    const token = await getCookies();
 
     if (!token) {
       throw new Error("No authentication token");
     }
 
-    // Decode token to get owner ID
-    const jwt = await import("jsonwebtoken");
-    const decoded = jwt.verify(
-      token.value,
-      process.env.JWT_SECRET as string
-    ) as { userId: string };
-
-    // Fetch hostels
     const hostelsResponse = await fetch(`${url}/api/hostels`, {
       headers: {
-        Cookie: `access_token=${token.value}`,
+        Cookie: `access_token=${token}`,
       },
       cache: "no-store",
     });
@@ -53,16 +45,14 @@ async function getDashboardData() {
     // Fetch tenants
     const tenantsResponse = await fetch(`${url}/api/tenants`, {
       headers: {
-        Cookie: `access_token=${token.value}`,
+        Cookie: `access_token=${token}`,
       },
       cache: "no-store",
     });
 
-    // Fetch successful transactions for monthly income
     const transactionsResponse = await fetch(`${url}/api/transaction/success`, {
       headers: {
-        Cookie: `access_token=${token.value}`,
-        "x-owner-id": decoded.userId,
+        Cookie: `access_token=${token}`,
       },
       cache: "no-store",
     });
@@ -93,7 +83,7 @@ async function getDashboardData() {
         `${url}/api/hostels/${hostel.slug}/rooms`,
         {
           headers: {
-            Cookie: `access_token=${token?.value}`,
+            Cookie: `access_token=${token}`,
           },
           cache: "no-store",
         }

@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
   try {
     const ownerId = req.headers.get("x-owner-id");
+    console.log("OWNER ID", ownerId);
     if (!ownerId) throw new UnauthorizedError();
     const _id = new ObjectId(ownerId);
 
