@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { fetchTransactionsData } from "./actions";
 import { showError } from "@/components/toast";
 import { motion } from "framer-motion";
+import RefreshButton from "@/components/RefreshButton";
 
 interface IPayment {
   _id: string;
@@ -105,9 +106,55 @@ export default function FeenDues() {
     }
   };
 
+  const handleRefresh = async () => {
+    try {
+      setLoading(true);
+
+      // Refresh all data
+      const [allDataResult, paginatedResult] = await Promise.all([
+        fetchTransactionsData(1, 999999), // Fetch all data for summary
+        fetchTransactionsData(
+          currentPage,
+          itemsPerPage,
+          filterStatus === "all" ? undefined : filterStatus
+        ), // Fetch paginated data
+      ]);
+
+      if (allDataResult.success) {
+        setAllPayments(allDataResult.payments || []);
+      }
+
+      if (paginatedResult.success) {
+        setPayments(paginatedResult.payments || []);
+        setTotalPages(paginatedResult.pagination?.totalPages || 1);
+        setTotalRecords(paginatedResult.pagination?.total || 0);
+      } else {
+        showError(paginatedResult.message || "Failed to refresh transactions");
+      }
+    } catch (error) {
+      showError("Failed to refresh data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="p-4 pt-20 sm:ml-64 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto pt-6">
+        {/* Header with Refresh Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="flex justify-between items-center mb-6"
+        >
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">Fee & Dues</h1>
+            <p className="text-gray-500">Manage your payment transactions</p>
+          </div>
+          <RefreshButton onRefresh={handleRefresh} />
+        </motion.div>
+
         {loading ? (
           <div className="bg-white rounded-xl shadow-sm p-8 text-center">
             <p className="text-gray-600">Loading payment data...</p>
@@ -355,9 +402,9 @@ export default function FeenDues() {
               {totalRecords > 0 && (
                 <div className="flex flex-col sm:flex-row items-center justify-between mt-6 pt-6 border-t border-gray-200 gap-4">
                   <div className="text-sm text-gray-600">
-                    Menampilkan {(currentPage - 1) * itemsPerPage + 1} hingga{" "}
-                    {Math.min(currentPage * itemsPerPage, totalRecords)} dari{" "}
-                    {totalRecords} transaksi
+                    Displaying {(currentPage - 1) * itemsPerPage + 1} to{" "}
+                    {Math.min(currentPage * itemsPerPage, totalRecords)} of{" "}
+                    {totalRecords} transactions
                   </div>
                   <div className="flex gap-2 items-center">
                     <button
@@ -398,7 +445,7 @@ export default function FeenDues() {
                           d="M15 19l-7-7 7-7"
                         />
                       </svg>
-                      <span className="hidden sm:inline">Sebelumnya</span>
+                      <span className="hidden sm:inline">Before</span>
                     </button>
 
                     <div className="flex gap-1">
@@ -457,7 +504,7 @@ export default function FeenDues() {
                       disabled={currentPage === totalPages}
                       className="flex items-center gap-1 px-3 py-2 rounded-lg font-medium transition-all disabled:opacity-30 disabled:cursor-not-allowed bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:shadow-sm"
                     >
-                      <span className="hidden sm:inline">Selanjutnya</span>
+                      <span className="hidden sm:inline">Next</span>
                       <svg
                         className="w-4 h-4"
                         fill="none"
