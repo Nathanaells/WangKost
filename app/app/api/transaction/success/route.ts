@@ -6,32 +6,30 @@ import Transaction from "@/server/models/Transaction";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req : NextRequest) {
-    try {
+export async function GET(req: NextRequest) {
+  try {
     const ownerId = req.headers.get("x-owner-id");
     if (!ownerId) throw new UnauthorizedError();
     const _id = new ObjectId(ownerId);
 
-    const owner = await Owner.with("rooms").where("_id", ownerId).first();
+    const owner = await Owner.with("rooms").where("_id", _id).first();
 
     const roomIds = owner?.rooms?.map((room) => room._id);
-    console.log(200, "ROOMID",roomIds)
+
     // Rent Loop
-    const rents = await Rent.whereIn("roomId", roomIds as ObjectId[])
-      .get()
-    const rentIds : ObjectId[] = []
-    rents.forEach(element => {
-      rentIds.push(element._id)
+    const rents = await Rent.whereIn("roomId", roomIds as ObjectId[]).get();
+    const rentIds: ObjectId[] = [];
+    rents.forEach((element) => {
+      rentIds.push(element._id);
     });
 
-    console.log(200, "RENTID",rentIds)
-    const transactions = await Transaction.whereIn("rentId", rentIds).get()
-    
-    console.log(transactions)
-    return NextResponse.json(transactions)
-    } catch (error) {
+    const transactions = await Transaction.whereIn("rentId", rentIds)
+      .where("status", "PAID")
+      .get();
+
+    return NextResponse.json(transactions);
+  } catch (error) {
     const { message, status } = customError(error);
-    return NextResponse.json({ message }, { status });  
-    }
-}    
-    
+    return NextResponse.json({ message }, { status });
+  }
+}
