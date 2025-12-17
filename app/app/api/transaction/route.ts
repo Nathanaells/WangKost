@@ -7,6 +7,23 @@ import { ITransaction, TransactionStatus } from "@/types/type";
 import { ObjectId } from "mongodb";
 import { DB } from "mongoloquent";
 import { NextRequest, NextResponse } from "next/server";
+import { ITransactionResponse } from "@/types/type";
+
+
+interface IMatchStage {
+  "hostel.ownerId": ObjectId;
+  status?: string;
+}
+
+
+interface IAggregationResult {
+  data: ITransactionResponse[];
+  totalCount: Array<{ count: number }>;
+}
+
+interface IProps {
+  searchParams: Promise<{ [keyword: string]: string | string[] | undefined }>;
+}
 
 // Interface untuk match stage di aggregation
 interface IMatchStage {
