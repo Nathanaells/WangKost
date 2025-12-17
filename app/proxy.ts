@@ -46,7 +46,6 @@ export async function proxy(req: NextRequest) {
         if (!owner) throw new UnauthorizedError();
 
         const newHeaders = new Headers(req.headers);
-        // console.log(owner, 'PROXY', 200)
         newHeaders.set("x-owner-id", owner._id.toString());
         newHeaders.set("x-owner-phoneNumber", owner.phoneNumber);
 

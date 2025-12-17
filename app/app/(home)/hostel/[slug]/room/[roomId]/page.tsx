@@ -27,8 +27,8 @@ interface IRent {
   price: number;
   roomId: string;
   tenantId: string;
-  joinAt: string;
-  leaveAt?: string;
+  joinAt: Date;
+  leaveAt?: Date;
   tenant?: ITenant;
   additionals?: IAdditional[];
 }
@@ -188,18 +188,18 @@ async function getLatestTransaction(
     const cookieStore = await cookies();
     const token = cookieStore.get("access_token");
 
-        const response = await fetch(`${url}/api/transaction`, {
-            headers: {
-                Cookie: `access_token=${token?.value}`,
-            },
-            cache: 'no-store',
-        });
+    const response = await fetch(`${url}/api/transaction`, {
+      headers: {
+        Cookie: `access_token=${token?.value}`,
+      },
+      cache: "no-store",
+    });
 
     if (!response.ok) {
       return null;
     }
 
-        const transactions: ITransaction[] = await response.json();
+    const transactions: ITransaction[] = await response.json();
 
     // Filter transactions for this room and sort by createdAt to get the latest
     const roomTransactions = transactions

@@ -30,8 +30,15 @@ export default class Room extends Model<IRoom> {
   public rent() {
     return this.hasMany(Rent);
   }
-  public tenants(){
-    return this.belongsToMany(Tenant, 'rents','roomId', 'tenantId', '_id', '_id')
+  public tenants() {
+    return this.belongsToMany(
+      Tenant,
+      "rents",
+      "roomId",
+      "tenantId",
+      "_id",
+      "_id"
+    );
   }
 
   //!! Fixing relation Liat Diagaram, Room gaada tenant id

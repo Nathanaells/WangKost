@@ -83,7 +83,7 @@ export interface ICreateTenant {
   email: string;
   birthday: Date;
   phoneNumber: string;
-  isActive: boolean;
+  isActive?: boolean;
   roomId: ObjectId;
   additionalIds?: string[]; // Array of additional IDs to attach to rent
 }

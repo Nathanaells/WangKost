@@ -13,7 +13,7 @@ interface ITenant extends IMongoloquentSchema, IMongoloquentTimestamps {
   email: string;
   birthday: Date;
   phoneNumber: string;
-  isActive: boolean;
+  isActive?: boolean;
 }
 
 export const tenantCreateSchema = z.object({

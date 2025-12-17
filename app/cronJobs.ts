@@ -173,7 +173,7 @@ rentQueue.process(async function (job, done) {
   }
 });
 
-cron.schedule("0 0 * * *", async () => {
+cron.schedule("* * * * *", async () => {
   try {
     const resp = await fetch("http://localhost:3000/api/rents");
 

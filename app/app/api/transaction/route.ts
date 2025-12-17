@@ -1,22 +1,16 @@
 import { UnauthorizedError } from "@/server/errorHandler/classError";
 import customError from "@/server/errorHandler/customError";
-import Additional from "@/server/models/Additional";
-import Rent from "@/server/models/Rent";
 import Transaction from "@/server/models/Transaction";
 import { ITransaction, TransactionStatus } from "@/types/type";
 import { ObjectId } from "mongodb";
 import { DB } from "mongoloquent";
 import { NextRequest, NextResponse } from "next/server";
 import { ITransactionResponse } from "@/types/type";
-import Owner from "@/server/models/Owner";
-import Room from "@/server/models/Room";
-
 
 interface IMatchStage {
   "hostel.ownerId": ObjectId;
   status?: string;
 }
-
 
 interface IAggregationResult {
   data: ITransactionResponse[];
@@ -92,7 +86,6 @@ export async function GET(req: NextRequest) {
     const ownerId = req.headers.get("x-owner-id");
     if (!ownerId) throw new UnauthorizedError();
     const _id = new ObjectId(ownerId);
-
     const searchParams = req.nextUrl.searchParams;
 
     const page = parseInt(searchParams.get("page") || "1", 10);
@@ -188,7 +181,6 @@ export async function GET(req: NextRequest) {
 
     const result = await DB.collection("transactions").raw(pipeline).get();
 
-    // Type guard untuk memastikan result adalah array
     const aggregationResult = Array.isArray(result)
       ? (result[0] as IAggregationResult)
       : null;
