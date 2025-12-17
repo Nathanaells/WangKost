@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import url from "./constant";
+import { motion } from "framer-motion";
 
 interface IBuilding {
   id?: string;
@@ -11,6 +12,7 @@ interface IBuilding {
   name: string;
   totalRooms: number;
   occupancy: number;
+  index?: number;
 }
 
 export default function BuildingCard(props: IBuilding) {
@@ -27,7 +29,7 @@ export default function BuildingCard(props: IBuilding) {
     try {
       const response = await fetch(`${url}/api/hostels/${deleteTarget}`, {
         method: "DELETE",
-        credentials: 'include',
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -45,11 +47,19 @@ export default function BuildingCard(props: IBuilding) {
   };
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: (props.index || 0) * 0.1 }}
+      whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
       className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer"
       onClick={() => {
         const target = props.slug || props.id;
-        console.log("Navigating with:", { slug: props.slug, id: props.id, target });
+        console.log("Navigating with:", {
+          slug: props.slug,
+          id: props.id,
+          target,
+        });
         if (target) {
           router.push(`/hostel/${target}`);
         }
@@ -109,6 +119,6 @@ export default function BuildingCard(props: IBuilding) {
           <div className="text-gray-900 font-semibold">{props.occupancy}%</div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

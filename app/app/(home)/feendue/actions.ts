@@ -1,104 +1,137 @@
-'use server';
+"use server";
 
-import { cookies } from 'next/headers';
-import { verifyToken } from '@/server/helpers/jwt';
-import Transaction from '@/server/models/Transaction';
-import Rent from '@/server/models/Rent';
-import Room from '@/server/models/Room';
-import Hostel from '@/server/models/Hostel';
-import Tenant from '@/server/models/Tenant';
-import { ObjectId } from 'mongodb';
+import { cookies } from "next/headers";
 
 interface IPayment {
-    _id: string;
-    tenantName: string;
-    hostelName: string;
-    roomNumber: string;
-    amount: number;
-    status: 'paid' | 'unpaid' | 'pending';
-    dueDate: string;
-    paidDate?: string;
-    month: string;
+  _id: string;
+  tenantName: string;
+  hostelName: string;
+  amount: number;
+  status: "PAID" | "UNPAID" | "PENDING";
+  dueDate: string;
+  paidDate?: string;
+  month: string;
 }
 
-export async function fetchTransactionsData() {
-    try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get('access_token');
+interface ITransaction {
+  _id: string;
+  tenantId: string;
+  status: string;
+  amount: number;
+  dueDate: string;
+  rentId: string;
+  createdAt: string;
+  updatedAt: string;
+  midTransOrderId?: string;
+  midTransTransactionId?: string;
+  paidAt?: string;
+  hostel?: {
+    name: string;
+  };
+  tenant?: {
+    name: string;
+  };
+}
 
-        if (!token) {
-            return { success: false, message: 'Not authenticated' };
-        }
+interface IPaginationInfo {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
 
-        const decoded = verifyToken(token.value);
-        const ownerId = new ObjectId(decoded.userId);
+interface IApiResponse {
+  data: ITransaction[];
+  pagination: IPaginationInfo;
+}
 
-        // Fetch hostels by owner (sesuai ERD: Admin → Hostel)
-        const hostels = await Hostel.where('ownerId', ownerId).get();
+export async function getCookies(): Promise<string> {
+  const cookieStore = await cookies();
+  const access_token = cookieStore.get("access_token");
+  const token = access_token?.value as string;
+  return token;
+}
 
-        if (hostels.length === 0) {
-            return { success: true, payments: [] };
-        }
+export async function fetchTransactionsData(
+  page: number = 1,
+  limit: number = 10,
+  status?: string
+) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("access_token");
 
-        const hostelIds = hostels.map((h: any) => new ObjectId(h._id));
+    if (!token) {
+      return { success: false, message: "Not authenticated", payments: [], pagination: undefined };
+    }
 
-        // Fetch rooms by hostel (sesuai ERD: Hostel → Room)
-        const rooms = await Room.whereIn('hostelId', hostelIds).get();
+    // Build query params
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
 
-        if (rooms.length === 0) {
-            return { success: true, payments: [] };
-        }
+    if (status && status !== "all" && status !== undefined) {
+      params.append("status", status.toUpperCase());
+    }
 
-        const roomIds = rooms.map((r: any) => new ObjectId(r._id));
+    const response = await fetch(
+      `${
+        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+      }/api/transaction?${params}`,
+      {
+        headers: {
+          Cookie: `access_token=${token.value}`,
+        },
+        cache: "no-store",
+      }
+    );
 
-        // Fetch rents by room (sesuai ERD: Room → Rent)
-        const rents = await Rent.whereIn('roomId', roomIds).get();
+    if (!response.ok) {
+      return {
+        success: false,
+        message: "Failed to fetch transactions",
+        payments: [],
+        pagination: undefined,
+      };
+    }
 
-        if (rents.length === 0) {
-            return { success: true, payments: [] };
-        }
+    const apiData: IApiResponse = await response.json();
 
-        const rentIds = rents.map((r: any) => new ObjectId(r._id));
-
-        // Fetch transactions by rent (sesuai ERD: Rent → Transaction)
-        const transactions = await Transaction.whereIn('rentId', rentIds).get();
-
-        // Create maps for easy lookup
-        const hostelMap = new Map(hostels.map((h: any) => [h._id.toString(), h]));
-        const roomMap = new Map(rooms.map((r: any) => [r._id.toString(), r]));
-        const rentMap = new Map(rents.map((r: any) => [r._id.toString(), r]));
-
-        // Fetch all tenants referenced in rents
-        const tenantIds = rents.map((r: any) => new ObjectId(r.tenantId));
-        const tenants = await Tenant.whereIn('_id', tenantIds).get();
-        const tenantMap = new Map(tenants.map((t: any) => [t._id.toString(), t]));
-
-        // Map transactions to payment format (following ERD relations)
-        const mappedPayments: IPayment[] = transactions.map((transaction: any) => {
-            const rent = rentMap.get(transaction.rentId.toString());
-            const room = rent ? roomMap.get(rent.roomId.toString()) : null;
-            const hostel = room ? hostelMap.get(room.hostelId.toString()) : null;
-            const tenant = rent ? tenantMap.get(rent.tenantId.toString()) : null;
-
-            const dueDate = new Date(transaction.dueDate);
-            const month = dueDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-
-            return {
-                _id: transaction._id.toString(),
-                tenantName: tenant?.name || 'Unknown Tenant',
-                hostelName: hostel?.name || 'Unknown Hostel',
-                roomNumber: room?.roomNumber || room?._id?.toString().slice(-3) || 'N/A',
-                amount: transaction.amount,
-                status: transaction.status.toLowerCase() as 'paid' | 'unpaid' | 'pending',
-                dueDate: transaction.dueDate,
-                paidDate: transaction.paidAt || undefined,
-                month,
-            };
+    // Map API response to payment format
+    const mappedPayments: IPayment[] = apiData.data.map(
+      (transaction: ITransaction) => {
+        const dueDate = new Date(transaction.dueDate);
+        const month = dueDate.toLocaleDateString("en-US", {
+          month: "long",
+          year: "numeric",
         });
 
-        return { success: true, payments: mappedPayments };
-    } catch (error) {
-        console.error('Error fetching transactions data:', error);
-        return { success: false, message: error instanceof Error ? error.message : 'Unknown error' };
-    }
+        return {
+          _id: transaction._id,
+          tenantName: transaction.tenant?.name || "Unknown",
+          hostelName: transaction.hostel?.name || "-",
+          amount: transaction.amount,
+          status: transaction.status as "PAID" | "UNPAID" | "PENDING",
+          dueDate: transaction.dueDate,
+          paidDate: transaction.paidAt,
+          month,
+        };
+      }
+    );
+
+    return { 
+      success: true, 
+      payments: mappedPayments,
+      pagination: apiData.pagination 
+    };
+  } catch (error) {
+    console.error("Error fetching transactions data:", error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Unknown error",
+      payments: [],
+      pagination: undefined,
+    };
+  }
 }
