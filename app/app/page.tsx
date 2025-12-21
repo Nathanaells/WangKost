@@ -49,7 +49,7 @@ export default async function LandingPage() {
                 href="/register"
                 className="px-8 py-2.5 bg-linear-to-br from-[#5353ec] to-[#7c3aed] text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold"
               >
-                Get Started Free
+                Get Started
               </Link>
             </div>
           </div>
@@ -60,10 +60,6 @@ export default async function LandingPage() {
       <section className="pt-40 pb-32 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-purple-50/50 to-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 rounded-full text-purple-700 font-medium mb-8">
-              <span className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span>
-              #1 Hostel Management System in Indonesia
-            </div>
             <h1 className="text-6xl md:text-7xl lg:text-8xl font-extrabold text-gray-900 mb-8 leading-tight">
               Manage Your
               <br />
@@ -81,26 +77,6 @@ export default async function LandingPage() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-24 max-w-5xl mx-auto">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-[#5353ec] mb-2">500+</div>
-              <div className="text-gray-600 font-medium">Active Hostels</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-[#5353ec] mb-2">10K+</div>
-              <div className="text-gray-600 font-medium">Rooms Managed</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-[#5353ec] mb-2">50K+</div>
-              <div className="text-gray-600 font-medium">Happy Tenants</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-[#5353ec] mb-2">
-                99.9%
-              </div>
-              <div className="text-gray-600 font-medium">Uptime</div>
-            </div>
-          </div>
         </div>
       </section>
 

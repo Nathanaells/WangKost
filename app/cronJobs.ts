@@ -4,6 +4,7 @@ dotenv.config();
 import {
   IRentObject,
   IRentWithAdditionals,
+  ITransaction,
   TransactionStatus,
 } from "@/types/type";
 import cron from "node-cron";
@@ -205,4 +206,14 @@ cron.schedule("*/15 * * * * *", async () => {
   } catch (error: unknown) {
     console.error("[Cron] Error:", error);
   }
+});
+
+cron.schedule("* * * * *", async () => {
+  const nowDate = new Date();
+  const transcation = await Transaction.where("dueDate", ">", nowDate).get();
+  /* 
+    1. Map rent ID transaction,
+    2. Dapetin tenant,
+    3. Update Tenant status jadi false, kirim notifikasi ke wa pakai n8n dan dibuat stack baru
+    */
 });

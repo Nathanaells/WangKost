@@ -38,9 +38,6 @@ export async function GET(req: NextRequest) {
     const formatedDate1 = new Date(day1);
     const formatedDate2 = new Date(day2);
 
-    // console.log(formatedDate1, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-    // console.log(formatedDate2, ">>>>>>>>>>>>>>>>>>>>>>>>>>");
-
     // Query rents where joinAt is between formatedDate1 and formatedDate2
     const rents = await Rent.where("joinAt", ">=", formatedDate1)
       .where("joinAt", "<=", formatedDate2)
